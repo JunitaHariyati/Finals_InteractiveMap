@@ -11,26 +11,17 @@ except Exception:
     ee.Authenticate()
     ee.Initialize(project="ee-junitahariyati0717")
 
-st.title("Interactive GEE GeoTIFF Map")
+# --- Pages ---
+home = st.Page("pages/Home.py", title="Home", default=True)
+coffee = st.Page("pages/LSA/Kopi_Liberika.py", title="Kopi")
+avocado = st.Page("pages/LSA/Alpukat.py", title="Alpukat")
 
-# Create map
-Map = geemap.Map(draw_ctrl=True)
+# --- Navigation Bar ---
+pg = st.navigation(
+        {
+            "Halaman Utama": [home],
+            "Analisis Kesesuaian Wilayah": [coffee, avocado]
+        }
+)
 
-# Load asset
-asset_id = 'projects/tugasakhir-473409/assets/compositeFull_2025'
-image = ee.Image(asset_id)
-
-# Visualization
-viz_params = {
-    'bands': ['B4', 'B3', 'B2'],
-    'min': 0,
-    'max': 0.3
-}
-
-Map.addLayer(image, viz_params, 'Agats Composite')
-
-# Center map
-Map.centerObject(image, 11)
-
-# Display map
-Map.to_streamlit(height=700)
+pg.run()
