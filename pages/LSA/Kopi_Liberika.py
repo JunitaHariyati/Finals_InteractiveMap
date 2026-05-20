@@ -7,13 +7,18 @@ st.title("Analisis Kesesuaian Lahan untuk Kopi Liberika")
 # --- Projects Assets ID ---
 assets = "projects/tugasakhir-473409/assets/"
 
-# --- Radio Button ---
-method = st.radio(
-    "Pilih Metode LSA",
-    ["Weighted Average", "Limiting Factor"],
-    index=0,
-    horizontal=True
-)
+# -------------------- FILTERING OPTION ---------------------
+
+col1Opt, col2Opt, col3Opt = st.columns(3)
+
+# -------------------- LSA METHOD OPTION ---------------------
+with col1Opt:
+    method = st.radio(
+        "Pilih Metode LSA",
+        ["Weighted Average", "Limiting Factor"],
+        index=0,
+        horizontal=True
+    )
 
 # ---- Assets ---
 if method == "Limiting Factor":
@@ -24,7 +29,27 @@ else:
 # Load image
 image = ee.Image(asset_id)
 
-# --- Class Option ---
+# -------------------- DESA OPTION ---------------------
+
+# Batas Desa
+desaAgats = ee.FeatureCollection(assets + "DesaAgats")
+desa_list = desaAgats.aggregate_array("NAMOBJ").getInfo()
+
+desa_list.sort()
+
+desa_options = ["Semua Desa"] + desa_list
+
+with col2Opt:
+    selected_desa = st.selectbox(
+        "Pilih Desa",
+        desa_options
+    )
+
+desa_geometry = desaAgats.filter(
+    ee.Filter.eq("NAMOBJ", selected_desa)
+)
+
+# -------------------- LSA CLASS OPTION ---------------------
 class_options = {
     "Semua Kelas": 0,
     "S1 - Sangat Sesuai": 4,
@@ -33,14 +58,15 @@ class_options = {
     "N - Tidak sesuai": 1
 }
 
-selected_class = st.selectbox(
-    "Lihat Detail Kelas",
-    list(class_options.keys())
+with col3Opt:
+    selected_class = st.selectbox(
+        "Pilih Kelas Keseuaian Lahan",
+        list(class_options.keys())
 )
 
 selected_value = class_options[selected_class]
 
-# --- Visualize ---
+# -------------------- VISUALIZE ---------------------
 class_vis = {
     'min': 1,
     'max': 4,
@@ -49,6 +75,7 @@ class_vis = {
         '#EF9F27',  # S3
         '#97C459',  # S2
         '#1D9E75']  # S1
+    , "opacity": 0.7
     }
 
 single_class_palette = {
@@ -58,7 +85,7 @@ single_class_palette = {
     4: ["#1D9E75"]
 }
 
-# Filter Image
+# Filter Class Map
 if selected_value == 0:
     display_image = image
     map_vis = class_vis
@@ -68,8 +95,26 @@ else:
     map_vis = {
         "min": selected_value,
         "max": selected_value,
-        "palette": single_class_palette[selected_value]
+        "palette": single_class_palette[selected_value],
+        "opacity": 0.7
     }
+
+# Filter Desa Map
+if selected_desa == "Semua Desa":
+    filtered_image = display_image
+    region_geometry = desaAgats.geometry()
+    map_center_object = desaAgats
+    zoom_level = 11
+else:
+    desa_geometry = desaAgats.filter(
+        ee.Filter.eq("NAMOBJ", selected_desa)
+    )
+    filtered_image = display_image.clip(
+        desa_geometry
+    )
+    region_geometry = desa_geometry.geometry()
+    map_center_object = desa_geometry
+    zoom_level = 13
 
 # Legend
 legend_dict = {
@@ -79,17 +124,17 @@ legend_dict = {
     "N - Tidak Sesuai": "#E24B4A"
 }
 
-# --- CALCULATE AREA ---
+# -------------------- CALCULATE AREA ---------------------
 
 # Pixel area in hectares
 area_image = ee.Image.pixelArea().divide(10000).rename("area")
 
 # Calculate area for each class
 classes = {
-    1: "N - Tidak Sesuai",
-    2: "S3 - Sesuai Marginal",
-    3: "S2 - Cukup Sesuai",
-    4: "S1 - Sangat Sesuai"
+    1: "N",
+    2: "S3",
+    3: "S2",
+    4: "S1"
 }
 
 area_data = []
@@ -99,15 +144,13 @@ for class_value, class_name in classes.items():
     class_mask = image.eq(class_value)
 
     area = (
-        area_image
-        .updateMask(class_mask)
+        area_image.updateMask(class_mask)
         .reduceRegion(
             reducer=ee.Reducer.sum(),
-            geometry=image.geometry(),
+            geometry=region_geometry,
             scale=30,
             maxPixels=1e13
-        )
-        .get("area")
+        ).get("area")
     )
 
     try:
@@ -116,7 +159,7 @@ for class_value, class_name in classes.items():
         area_ha = 0
 
     area_data.append({
-        "Class": class_name,
+        "Kelas": class_name,
         "Area (ha)": area_ha
     })
 
@@ -124,11 +167,11 @@ df = pd.DataFrame(area_data)
 
 if selected_value != 0:
     selected_label = classes[selected_value]
-    df = df[df["Class"] == selected_label]
+    df = df[df["Kelas"] == selected_label]
 
-# --- LAYOUTING ---
+# -------------------- LAYOUTING CONTENT ---------------------
 
-col1, col2 = st.columns([1, 1])
+col1, col2 = st.columns([7, 3])
 
 # Left Column
 
@@ -136,21 +179,30 @@ with col1:
 
     Map = geemap.Map(draw_ctrl=True)
 
+    # Base Map
+    Map.add_basemap("SATELLITE")
 
-    # Load asset
-    composite_id = assets + 'compositeFull_2025'
-    composite = ee.Image(composite_id)
+    # LSA Layer
+    Map.addLayer(filtered_image, map_vis, selected_class)
 
-    # Visualization
-    viz_params = {
-        'bands': ['B4', 'B3', 'B2'],
-        'min': 0,
-        'max': 0.3
-    }
+    # Map by Desa
+    if selected_desa == "Semua Desa":
 
-    Map.addLayer(composite, viz_params, 'Agats Composite')
-    Map.addLayer(display_image, map_vis, selected_class)
-    Map.centerObject(display_image, 11)
+        Map.addLayer(
+            desaAgats.style(
+                color="black",fillColor="00000000",width=1
+            ),{},"Batas Desa"
+        )
+
+    else:
+
+        Map.addLayer(
+            desa_geometry.style(
+                color="red",fillColor="00000000",width=3
+            ),{},"Desa Terpilih"
+        )
+
+    Map.centerObject(map_center_object, zoom_level)
 
     Map.add_legend(
         title="Kelas Kesesuian (FAO 1976)",
