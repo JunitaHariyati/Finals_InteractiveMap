@@ -1,105 +1,82 @@
-from config import ee, st, geemap, pd
+from config import *
+from utils.gee_cache import (get_desa_list, calculate_area_stats)
+from utils.gee_info import (get_polygon_statistics)
+from utils.gee_layers import (build_parameter_stack)
+
+desaAgats = ee.FeatureCollection(ASSETS + "DesaAgats")
 
 st.set_page_config(page_title="LSA of Coffee", layout="wide")
 
 st.title("Analisis Kesesuaian Lahan untuk Kopi Liberika")
 
-# --- Projects Assets ID ---
-assets = "projects/tugasakhir-473409/assets/"
+# Map Initialization
+Map = geemap.Map(
+    draw_ctrl=False, measure_ctrl=False, fullscreen_ctrl=True
+)
+Map.options["doubleClickZoom"] = False
 
 # -------------------- FILTERING OPTION ---------------------
-
-col1Opt, col2Opt, col3Opt = st.columns(3)
-
-# -------------------- LSA METHOD OPTION ---------------------
-with col1Opt:
-    method = st.radio(
-        "Pilih Metode LSA",
+with st.container():
+    st.markdown('<div class="filter-bar" style="flex-wrap:wrap;gap:16px;">', unsafe_allow_html=True)
+    f1, f2, f3 = st.columns([1.4, 1.8, 1.8])
+    
+    # LSA METHOD
+    with f1:
+        method = st.radio(
+        "Metode Analisis",
         ["Weighted Average", "Limiting Factor"],
         index=0,
         horizontal=True
     )
+    
+    # FILTERING DESA
+    with f2:
+        desa_list = get_desa_list()
+        desa_options = ["Semua Desa"] + desa_list
+        selected_desa = st.selectbox(
+            "Filter Desa",options=desa_options,
+            index=0
+        )
+    
+    # FILTERING KELAS
+    with f3:
+        
+        selected_class = st.selectbox(
+            "Filter Kelas Kesesuaian Lahan",
+            list(CLASS_OPTIONS.keys())
+        )
+        selected_value = CLASS_OPTIONS[selected_class]
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # ---- Assets ---
 if method == "Limiting Factor":
-    asset_id = assets + "LSA_liberica_coffee_LF_2025"
+    asset_id = ASSETS + "LSA_liberica_coffee_LF_2025"
 else:
-    asset_id = assets + "LSA_liberica_coffee_WA_2025"
+    asset_id = ASSETS + "LSA_liberica_coffee_WA_2025"
+
+vegetation = ee.Image(ASSETS + "classified_2025_2B_ESRI")
+vegetMask = vegetation.neq(1).And(vegetation.neq(2))
 
 # Load image
-image = ee.Image(asset_id)
+image = ee.Image(asset_id).updateMask(vegetMask)
 
-# -------------------- DESA OPTION ---------------------
-
-# Batas Desa
-desaAgats = ee.FeatureCollection(assets + "DesaAgats")
-desa_list = desaAgats.aggregate_array("NAMOBJ").getInfo()
-
-desa_list.sort()
-
-desa_options = ["Semua Desa"] + desa_list
-
-with col2Opt:
-    selected_desa = st.selectbox(
-        "Pilih Desa",
-        desa_options
-    )
-
-desa_geometry = desaAgats.filter(
-    ee.Filter.eq("NAMOBJ", selected_desa)
-)
-
-# -------------------- LSA CLASS OPTION ---------------------
-class_options = {
-    "Semua Kelas": 0,
-    "S1 - Sangat Sesuai": 4,
-    "S2 - Cukup Sesuai": 3,
-    "S3 - Sesuai Marginal": 2,
-    "N - Tidak sesuai": 1
-}
-
-with col3Opt:
-    selected_class = st.selectbox(
-        "Pilih Kelas Keseuaian Lahan",
-        list(class_options.keys())
-)
-
-selected_value = class_options[selected_class]
-
-# -------------------- VISUALIZE ---------------------
-class_vis = {
-    'min': 1,
-    'max': 4,
-    'palette': [
-        '#E24B4A',  # N
-        '#EF9F27',  # S3
-        '#97C459',  # S2
-        '#1D9E75']  # S1
-    , "opacity": 0.7
-    }
-
-single_class_palette = {
-    1: ["#E24B4A"],
-    2: ["#EF9F27"],
-    3: ["#97C459"],
-    4: ["#1D9E75"]
-}
-
+# -------------------- FILTER CLASS ---------------------
 # Filter Class Map
 if selected_value == 0:
     display_image = image
-    map_vis = class_vis
+    map_vis = CLASS_VIS
 else:
     display_image = image.updateMask(image.eq(selected_value))
 
     map_vis = {
         "min": selected_value,
         "max": selected_value,
-        "palette": single_class_palette[selected_value],
+        "palette": SINGLE_CLASS_PALETTE[selected_value],
         "opacity": 0.7
     }
 
-# Filter Desa Map
+# -------------------- FILTER DESA ---------------------
 if selected_desa == "Semua Desa":
     filtered_image = display_image
     region_geometry = desaAgats.geometry()
@@ -116,127 +93,314 @@ else:
     map_center_object = desa_geometry
     zoom_level = 13
 
-# Legend
-legend_dict = {
-    "S1 - Sangat Sesuai": "#1D9E75",
-    "S2 - Cukup Sesuai": "#97C459",
-    "S3 - Sesuai Marginal": "#EF9F27",
-    "N - Tidak Sesuai": "#E24B4A"
-}
-
 # -------------------- CALCULATE AREA ---------------------
 
-# Pixel area in hectares
-area_image = ee.Image.pixelArea().divide(10000).rename("area")
+df = calculate_area_stats(filtered_image, region_geometry)
 
-# Calculate area for each class
 classes = {
-    1: "N",
-    2: "S3",
-    3: "S2",
-    4: "S1"
-}
-
-area_data = []
-
-for class_value, class_name in classes.items():
-
-    class_mask = image.eq(class_value)
-
-    area = (
-        area_image.updateMask(class_mask)
-        .reduceRegion(
-            reducer=ee.Reducer.sum(),
-            geometry=region_geometry,
-            scale=30,
-            maxPixels=1e13
-        ).get("area")
-    )
-
-    try:
-        area_ha = round(ee.Number(area).getInfo(), 2)
-    except:
-        area_ha = 0
-
-    area_data.append({
-        "Kelas": class_name,
-        "Area (ha)": area_ha
-    })
-
-df = pd.DataFrame(area_data)
+        1: "N",
+        2: "S3",
+        3: "S2",
+        4: "S1"
+    }
 
 if selected_value != 0:
     selected_label = classes[selected_value]
     df = df[df["Kelas"] == selected_label]
 
-# -------------------- LAYOUTING CONTENT ---------------------
+# -------------------- MAP ONLY ---------------------
 
-col1, col2 = st.columns([7, 3])
-
-# Left Column
-
-with col1:
-
-    Map = geemap.Map(draw_ctrl=True)
-
-    # Base Map
-    Map.add_basemap("SATELLITE")
+with st.container():
+    Map.add_basemap(DEFAULT_BASEMAP)
 
     # LSA Layer
-    Map.addLayer(filtered_image, map_vis, selected_class)
+    Map.addLayer(filtered_image,map_vis,selected_class)
 
-    # Map by Desa
+    # Batas Desa
     if selected_desa == "Semua Desa":
 
         Map.addLayer(
             desaAgats.style(
-                color="black",fillColor="00000000",width=1
+                color="green",fillColor="00000000",width=1,
             ),{},"Batas Desa"
         )
 
     else:
-
         Map.addLayer(
             desa_geometry.style(
-                color="red",fillColor="00000000",width=3
+                color="yellow",fillColor="00000000",width=1
             ),{},"Desa Terpilih"
         )
+    Map.centerObject(map_center_object,zoom_level)
 
-    Map.centerObject(map_center_object, zoom_level)
-
+    #Legend
     Map.add_legend(
-        title="Kelas Kesesuian (FAO 1976)",
-        legend_dict=legend_dict
+        title="Kelas Kesesuaian (FAO 1976)",
+        legend_dict=LEGEND_DICT
     )
 
-    Map.to_streamlit(height=600)
+    # -------------------- STATISTIC ---------------------
 
-# Right Column
+    total_area = round(df["Area (ha)"].sum(), 2)
 
-with col2:
-
-    st.subheader("Luas Area Kesesuaian")
-
-    st.dataframe(
-        df,
-        use_container_width=True,
-        hide_index=True
+    s1_area = round(
+        df[df["Kelas"] == "S1"]["Area (ha)"].sum(), 2
     )
 
-    total_area = df["Area (ha)"].sum()
-
-    st.metric(
-        label="Total Luas (ha)",
-        value=f"{total_area:,.2f}"
+    s2_area = round(
+        df[df["Kelas"] == "S2"]["Area (ha)"].sum(), 2
     )
 
-    descriptions = {
-        "S1": "Lahan sangat sesuai dengan faktor pembatas minimal.",
-        "S2": "Lahan cukup sesuai dengan beberapa faktor pembatas yang masih dapat dikelola.",
-        "S3": "Lahan sesuai marginal dengan faktor pembatas yang cukup signifikan.",
-        "N": "Lahan tidak sesuai untuk budidaya kopi."
+    s3_area = round(
+        df[df["Kelas"] == "S3"]["Area (ha)"].sum(), 2
+    )
+
+    n_area = round(
+        df[df["Kelas"] == "N"]["Area (ha)"].sum(), 2
+    )
+
+    class_html = f"""
+    <div style="
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        width: 320px;
+        z-index:9999;
+
+        background: rgba(255,255,255,0.92);
+        backdrop-filter: blur(12px);
+
+        border-radius: 18px;
+        padding: 18px;
+
+        box-shadow: 0 6px 25px rgba(0,0,0,0.25);
+
+        font-family: Arial;
+    ">
+
+        <!-- HEADER -->
+
+        <div style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:15px;
+        ">
+
+            <h3 style="
+                margin:0;
+                color:#1b4332;
+            ">
+            Statistik
+            </h3>
+
+            <button onclick="
+                var x = document.getElementById('parameterContent');
+
+                if (x.style.display === 'none') {{
+                    x.style.display = 'block';
+                }} else {{
+                    x.style.display = 'none';
+                }}
+            "
+
+            style="
+                border:none;
+                background:#1b4332;
+                color:white;
+                border-radius:8px;
+                padding:6px 12px;
+                cursor:pointer;
+                font-size:12px;
+            ">
+            Toggle
+            </button>
+
+        </div>
+
+        <!-- CONTENT -->
+
+        <div id="parameterContent">
+
+            <div style="
+                border-left:8px solid #1D9E75;
+                padding-left:10px;
+                margin-bottom:10px;
+            ">
+                <b>S1</b><br>
+                {s1_area} Ha
+            </div>
+
+            <div style="
+                border-left:8px solid #97C459;
+                padding-left:10px;
+                margin-bottom:10px;
+            ">
+                <b>S2</b><br>
+                {s2_area} Ha
+            </div>
+
+            <div style="
+                border-left:8px solid #EF9F27;
+                padding-left:10px;
+                margin-bottom:10px;
+            ">
+                <b>S3</b><br>
+                {s3_area} Ha
+            </div>
+
+            <div style="
+                border-left:8px solid #E24B4A;
+                padding-left:10px;
+                margin-bottom:10px;
+            ">
+                <b>N</b><br>
+                {n_area} Ha
+            </div>
+
+            <hr>
+
+            <div style="
+                background:#e8f5e9;
+                border-radius:12px;
+                padding:12px;
+                text-align:center;
+            ">
+                <b>Total Luas</b><br>
+                {total_area} Ha
+            </div>
+
+        </div>
+
+    </div>
+    """
+
+    Map.get_root().html.add_child(
+        folium.Element(class_html)
+    )
+
+# -------------------- CLICK EVENT ---------------------
+
+clicked_point = None
+
+if "clicked_point" in st.session_state:
+    clicked_point = st.session_state["clicked_point"]
+
+# -------------------- GET CLICK ---------------------
+
+map_data = st_folium(Map,height=700,width=None,returned_objects=["last_clicked"])
+clicked = map_data.get("last_clicked")
+
+# # DEBUG CLICK
+# st.write("DEBUG map_data:", map_data)
+# st.write("DEBUG clicked:", clicked)
+
+if clicked:
+    st.session_state["clicked_point"] = {
+        "lat": clicked["lat"],
+        "lon": clicked["lng"]
+    }
+    clicked_point = st.session_state["clicked_point"]
+    
+# -------------------- EXTRACT PARAMETER VALUE ---------------------
+if clicked_point:
+
+    lat = clicked_point["lat"]
+    lon = clicked_point["lon"]
+
+    point = ee.Geometry.Point([lon, lat])
+    stacked_image = build_parameter_stack()
+    stats = stacked_image.reduceRegion(
+        reducer=ee.Reducer.first(),
+        geometry=point,
+        scale=90
+    ).getInfo()
+
+    parameter_names = {
+        "rainfall": "Curah Hujan",
+        "temperature": "Suhu",
+        "humidity": "Kelembaban",
+        "elevation": "Elevasi",
+        "slope_pct": "Lereng",
+        "cec": "CEC",
+        "cn": "C/N Ratio",
+        "ph": "pH Tanah",
+        "clay": "Kadar Liat",
+        "sand": "Kadar Pasir",
+        "silt": "Kadar Debu"
     }
 
-    if selected_value != 0:
-        st.subheader("Detail Kelas")
-        st.info(descriptions[classes[selected_value]])
+    parameter_rows = ""
+
+    for key, label in parameter_names.items():
+
+        value = stats.get(key)
+
+        if value is None:
+            display_value = "-"
+        else:
+            try:
+                display_value = round(float(value), 2)
+            except:
+                display_value = value
+
+        parameter_rows += f"""
+        <div style="
+            display:flex;
+            justify-content:space-between;
+            padding:8px 0;
+            border-bottom:1px solid #eeeeee;
+        ">
+            <span>{label}</span>
+            <b>{display_value}</b>
+        </div>
+        """
+
+    st.markdown(
+        f"""
+        <div style="
+            position: fixed;
+            bottom: 30px;
+            right: 20px;
+            width: 340px;
+            z-index: 9999;
+
+            background: rgba(255,255,255,0.96);
+            backdrop-filter: blur(12px);
+
+            border-radius: 18px;
+            padding: 18px;
+
+            box-shadow: 0 6px 25px rgba(0,0,0,0.25);
+
+            font-family: Arial;
+
+            max-height: 500px;
+            overflow-y:auto;
+        ">
+
+        <h3 style="
+            margin-top:0;
+            color:#1b4332;
+        ">
+        📍 Informasi Lokasi
+        </h3>
+
+        <div style="
+            background:#f5f5f5;
+            padding:10px;
+            border-radius:10px;
+            margin-bottom:15px;
+        ">
+
+        <b>Latitude:</b> {round(lat,6)} <br>
+        <b>Longitude:</b> {round(lon,6)}
+
+        </div>
+
+        {parameter_rows}
+
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
