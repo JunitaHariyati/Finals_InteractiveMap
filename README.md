@@ -6,7 +6,7 @@ Aplikasi web berbasis Streamlit untuk:
 - Rekomendasi tanaman
 
 
-## Cara Menjalankan
+## Cara Menjalankan Aplikasi
 
 ```bash
 pip install -r requirements.txt
