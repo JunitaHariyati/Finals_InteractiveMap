@@ -169,10 +169,11 @@ else:
 
 with st.spinner("Menghitung statistik luas…"):
     df_area = calculate_area_stats(
-        filtered_image,
-        region_geometry,
-        region_key=st.session_state.avocado_desa,
-        method_key=st.session_state.avocado_method,
+        asset_key=asset_id,
+        _image=filtered_image,
+        _region_geometry=region_geometry,
+        region_key=st.session_state.cocoa_desa,
+        method_key=st.session_state.cocoa_method
     )
 
 if sel_class_val != 0:
