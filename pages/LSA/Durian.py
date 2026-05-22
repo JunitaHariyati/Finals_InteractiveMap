@@ -6,16 +6,16 @@ from utils.gee_layers import (build_parameter_stack)
 
 # -------------------- INITIALIZATION ---------------------
 # LOCAL CONSTANT
-ASSET_WA   = ASSETS + "LSA_avocado_WA_2025"
-ASSET_LF   = ASSETS + "LSA_avocado_LF_2025"
+ASSET_WA   = ASSETS + "LSA_durian_WA_2025"
+ASSET_LF   = ASSETS + "LSA_durian_LF_2025"
 VEGETATION = ASSETS + "classified_2025_2B_ESRI"
 
 _defaults = {
-    "avocado_method":        "Weighted Average",
-    "avocado_desa":          "Semua Desa",
-    "avocado_class":         "Semua Kelas",
-    "avocado_clicked_point": None,
-    "avocado_click_stats":   None,
+    "durian_method":        "Weighted Average",
+    "durian_desa":          "Semua Desa",
+    "durian_class":         "Semua Kelas",
+    "durian_clicked_point": None,
+    "durian_click_stats":   None,
 }
 for _k, _v in _defaults.items():
     if _k not in st.session_state:
@@ -70,7 +70,7 @@ st.markdown("""
 # -------------------- MAIN PAGE ---------------------
 
 # HEADER
-st.title("Analisis Kesesuaian Lahan - Alpukat")
+st.title("Analisis Kesesuaian Lahan - Durian")
 
 # -------------------- FILTERING OPTION ---------------------
 with st.container():
@@ -91,10 +91,10 @@ with st.container():
             horizontal=True,
             key="w_method",
         )
-        if method != st.session_state.avocado_method:
-            st.session_state.avocado_method        = method
-            st.session_state.avocado_clicked_point = None
-            st.session_state.avocado_click_stats   = None
+        if method != st.session_state.durian_method:
+            st.session_state.durian_method        = method
+            st.session_state.durian_clicked_point = None
+            st.session_state.durian_click_stats   = None
  
     with fc2:
         desa_list    = get_desa_list()
@@ -102,39 +102,39 @@ with st.container():
         sel_desa = st.selectbox(
             "Wilayah Desa",
             desa_options,
-            index=desa_options.index(st.session_state.avocado_desa)
-                  if st.session_state.avocado_desa in desa_options else 0,
+            index=desa_options.index(st.session_state.durian_desa)
+                  if st.session_state.durian_desa in desa_options else 0,
             key="w_desa",
         )
-        if sel_desa != st.session_state.avocado_desa:
-            st.session_state.avocado_desa          = sel_desa
-            st.session_state.avocado_clicked_point = None
-            st.session_state.avocado_click_stats   = None
+        if sel_desa != st.session_state.durian_desa:
+            st.session_state.durian_desa          = sel_desa
+            st.session_state.durian_clicked_point = None
+            st.session_state.durian_click_stats   = None
  
     with fc3:
         class_options = list(CLASS_OPTIONS.keys())
         sel_class = st.selectbox(
             "Kelas Kesesuaian",
             class_options,
-            index=class_options.index(st.session_state.avocado_class)
-                  if st.session_state.avocado_class in class_options else 0,
+            index=class_options.index(st.session_state.durian_class)
+                  if st.session_state.durian_class in class_options else 0,
             key="w_class",
         )
-        if sel_class != st.session_state.avocado_class:
-            st.session_state.avocado_class = sel_class
+        if sel_class != st.session_state.durian_class:
+            st.session_state.durian_class = sel_class
 
 st.markdown("<div style='margin-bottom:10px'></div>", unsafe_allow_html=True)
 
 # ---- Assets ---
 desaAgats = ee.FeatureCollection(ASSETS + "DesaAgats")
 
-asset_id = ASSETS + "LSA_avocado_WA_2025"
+asset_id = ASSETS + "LSA_durian_WA_2025"
 
 veget_mask = ee.Image(VEGETATION).neq(1).And(ee.Image(VEGETATION).neq(2))
 image_raw  = ee.Image(asset_id).updateMask(veget_mask)
 
 # -------------------- FILTER CLASS ---------------------
-sel_class_val = CLASS_OPTIONS[st.session_state.avocado_class]
+sel_class_val = CLASS_OPTIONS[st.session_state.durian_class]
 
 # Filter Class Map
 if sel_class_val == 0:
@@ -150,14 +150,14 @@ else:
     }
 
 # -------------------- FILTER DESA ---------------------
-if st.session_state.avocado_desa == "Semua Desa":
+if st.session_state.durian_desa == "Semua Desa":
     filtered_image    = display_image
     region_geometry   = desaAgats.geometry()
     map_center_obj    = desaAgats
     zoom_level        = 11
     desa_fc           = None
 else:
-    desa_fc         = desaAgats.filter(ee.Filter.eq("NAMOBJ", st.session_state.avocado_desa))
+    desa_fc         = desaAgats.filter(ee.Filter.eq("NAMOBJ", st.session_state.durian_desa))
     filtered_image  = display_image.clip(desa_fc).updateMask(
         ee.Image.constant(1).clip(desa_fc)
     )
@@ -171,8 +171,8 @@ with st.spinner("Menghitung statistik luas…"):
     df_area = calculate_area_stats(
         filtered_image,
         region_geometry,
-        region_key=st.session_state.avocado_desa,
-        method_key=st.session_state.avocado_method,
+        region_key=st.session_state.durian_desa,
+        method_key=st.session_state.durian_method,
     )
 
 if sel_class_val != 0:
@@ -210,10 +210,10 @@ with col_map:
             Map.add_basemap("OpenStreetMap")
         
         # LSA LAYER
-        Map.addLayer(filtered_image, map_vis, f"LSA - {st.session_state.avocado_class}")
+        Map.addLayer(filtered_image, map_vis, f"LSA - {st.session_state.durian_class}")
 
         # BATAS DESA
-        if st.session_state.avocado_desa == "Semua Desa":
+        if st.session_state.durian_desa == "Semua Desa":
             Map.addLayer(
                 desaAgats.style(color="00e676", fillColor="00000000", width=1),
                 {}, "Batas Desa",
@@ -225,7 +225,7 @@ with col_map:
             )
             Map.addLayer(
                 desa_fc.style(color="ffeb3b", fillColor="ffeb3b1a", width=2.5),
-                {}, f"Desa: {st.session_state.avocado_desa}",
+                {}, f"Desa: {st.session_state.durian_desa}",
             )
  
         Map.centerObject(map_center_obj, zoom_level)
@@ -235,7 +235,7 @@ with col_map:
 
         # ----------------- FLOATING STATS ON CLICK ---------------------------------
  
-        _cp = st.session_state.get("avocado_clicked_point")
+        _cp = st.session_state.get("durian_clicked_point")
         if isinstance(_cp, dict) and "lat" in _cp and "lon" in _cp:
             folium.CircleMarker(
                 location=[_cp["lat"], _cp["lon"]],
@@ -252,9 +252,9 @@ with col_map:
         # ----------------- RENDER MAP -----------------------
 
         map_key = (
-            f"avocado_{st.session_state.avocado_method}_"
-            f"{st.session_state.avocado_desa}_"
-            f"{st.session_state.avocado_class}"
+            f"durian_{st.session_state.durian_method}_"
+            f"{st.session_state.durian_desa}_"
+            f"{st.session_state.durian_class}"
         )
 
         map_data = st_folium(
@@ -270,8 +270,8 @@ with col_map:
         clicked = map_data.get("last_clicked")
         if clicked:
             new_pt = {"lat": clicked["lat"], "lon": clicked["lng"]}
-            if new_pt != st.session_state.avocado_clicked_point:
-                st.session_state.avocado_clicked_point = new_pt
+            if new_pt != st.session_state.durian_clicked_point:
+                st.session_state.durian_clicked_point = new_pt
                 with st.spinner("Mengambil data parameter lokasi…"):
                     try:
                         point  = ee.Geometry.Point([new_pt["lon"], new_pt["lat"]])
@@ -281,9 +281,9 @@ with col_map:
                             scale=90,
                             maxPixels=1e13,
                         ).getInfo()
-                        st.session_state.avocado_click_stats = stats
+                        st.session_state.durian_click_stats = stats
                     except Exception as err:
-                        st.session_state.avocado_click_stats = None
+                        st.session_state.durian_click_stats = None
                         st.warning(f"Gagal mengambil data GEE: {err}")
                 
                 st.rerun()
@@ -418,8 +418,8 @@ with col_stat:
             </div>""", unsafe_allow_html=True)
     
         # -------------------- PIXEL INFO ---------------------
-        cp = st.session_state.avocado_clicked_point
-        cs = st.session_state.avocado_click_stats
+        cp = st.session_state.durian_clicked_point
+        cs = st.session_state.durian_click_stats
     
         if cp:
             _section("Parameter Titik")

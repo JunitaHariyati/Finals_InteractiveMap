@@ -26,6 +26,7 @@ st.markdown("""
 home = st.Page("pages/Home.py", title="Home", default=True)
 coffee = st.Page("pages/LSA/Kopi_Liberika.py", title="Kopi")
 avocado = st.Page("pages/LSA/Alpukat.py", title="Alpukat")
+durian = st.Page("pages/LSA/Durian.py", title="Durian")
 
 # --- Navigation Bar ---
 with st.sidebar:
@@ -36,8 +37,9 @@ with st.sidebar:
     st.markdown("### Analisis Kesesuaian Wilayah")
     st.page_link(coffee)
     st.page_link(avocado)
+    st.page_link(durian)
 
 # Router
-pg = st.navigation([home, coffee, avocado])
+pg = st.navigation([home, coffee, avocado, durian])
 
 pg.run()
