@@ -51,6 +51,13 @@ SINGLE_CLASS_PALETTE = {
     4: ["#1D9E75"]
 }
 
+CLASS_COLOR = {
+    "S1": "#1D9E75",
+    "S2": "#97C459",
+    "S3": "#EF9F27",
+    "N":  "#E24B4A",
+}
+
 # Legend
 LEGEND_DICT = {
     "S1 - Sangat Sesuai": "#1D9E75",
@@ -58,3 +65,42 @@ LEGEND_DICT = {
     "S3 - Sesuai Marginal": "#EF9F27",
     "N - Tidak Sesuai": "#E24B4A"
 }
+
+PARAM_BAND_NAMES = {
+        "Rainfall_Annual": "Curah Hujan (mm/tahun)",
+        "Temp_Annual":     "Suhu (°C)",
+        "RH_Annual":       "Kelembaban (%)",
+        "elevation":       "Elevasi (mdpl)",
+        "slope_pct":       "Lereng (%)",
+        "cec":             "CEC (mmol/kg)",
+        "cn_ratio":        "C/N Ratio",
+        "ph":              "pH Tanah",
+        "clay_pct":        "Kadar Liat (%)",
+        "sand_pct":        "Kadar Pasir (%)",
+        "silt_pct":        "Kadar Debu (%)",
+    }
+
+CLASS_DESC = {
+    "S1": {
+        "title": "S1 – Sangat Sesuai",
+        "desc":  "Lahan tanpa pembatas berarti atau hanya memiliki pembatas sangat ringan "
+                 "yang tidak menurunkan produktivitas secara signifikan.",
+    },
+    "S2": {
+        "title": "S2 – Cukup Sesuai",
+        "desc":  "Lahan dengan pembatas sedang yang mempengaruhi produktivitas. "
+                 "Diperlukan input atau tindakan pengelolaan tertentu.",
+    },
+    "S3": {
+        "title": "S3 – Sesuai Marginal",
+        "desc":  "Lahan dengan pembatas berat yang secara signifikan mengurangi "
+                 "produktivitas. Input dan pengelolaan intensif diperlukan.",
+    },
+    "N": {
+        "title": "N – Tidak Sesuai",
+        "desc":  "Lahan memiliki pembatas sangat berat yang tidak dapat diatasi "
+                 "dalam kondisi pengelolaan normal.",
+    },
+}
+
+VAL_TO_LABEL = {1: "N", 2: "S3", 3: "S2", 4: "S1"}
