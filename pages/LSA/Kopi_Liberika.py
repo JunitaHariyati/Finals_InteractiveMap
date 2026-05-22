@@ -4,7 +4,7 @@ from utils.gee_cache import (get_desa_list, calculate_area_stats)
 from utils.gee_info import (get_polygon_statistics)
 from utils.gee_layers import (build_parameter_stack)
 
-# -------------------- INISIALIZATION ---------------------
+# -------------------- INITIALIZATION ---------------------
 # LOCAL CONSTANT
 ASSET_WA   = ASSETS + "LSA_liberica_coffee_WA_2025"
 ASSET_LF   = ASSETS + "LSA_liberica_coffee_LF_2025"
@@ -25,6 +25,10 @@ for _k, _v in _defaults.items():
 
 st.markdown("""
     <style>
+    #MainMenu, footer, header {{ visibility: hidden; }}
+    .stDeployButton {{ display: none; }}
+    [data-testid="stToolbar"] {{ display: none; }}
+            
     [data-testid="stMetricValue"] {
         font-size: 30px;
     }
@@ -193,8 +197,6 @@ col_map, col_stat = st.columns([7, 3], gap="small")
 
 # -------------------- LEFT: MAP ---------------------
 
-# @st.fragment
-# def render_map():
 with col_map:
         Map = geemap.Map(
             draw_ctrl=False,
@@ -286,11 +288,11 @@ with col_map:
                     except Exception as err:
                         st.session_state.coffee_click_stats = None
                         st.warning(f"Gagal mengambil data GEE: {err}")
-                # st.rerun(scope="fragment")
+                
                 st.rerun()
  
  
-# render_map()
+
 
 # -------------------- RIGHT: STATS ---------------------
 
@@ -304,6 +306,7 @@ with col_stat:
             {label}
         </div>""", unsafe_allow_html=True)
     
+    # -------------------- LUAS AREA ---------------------
     with stat_container:
         _section("Statistik Luas")
         st.metric("Total Luas", f"{total_area:,.2f} ha")
@@ -339,13 +342,8 @@ with col_stat:
             
         st.divider()
         
-            # ── Pie chart ─────────────────────────────────────────────────────────
+        # -------------------- PIE CHART ---------------------
         if total_area > 0:
-            # st.markdown("""
-            # <div style="font-size:.68rem;font-weight:600;text-transform:uppercase;
-            #             letter-spacing:1px;color:#484f58;margin-bottom:4px">
-            #     🥧 Proporsi Kelas
-            # </div>""", unsafe_allow_html=True)
             _section("Proporsi Kelas")
 
             pie_df = df_area[df_area["Area (ha)"] > 0].copy()
@@ -377,7 +375,7 @@ with col_stat:
             )
             st.plotly_chart(fig_pie, use_container_width=True, config={"displayModeBar": False})
         
-            # ── Bar chart ─────────────────────────────────────────────────────────
+        # -------------------- BAR CHART ---------------------
         if total_area > 0:
             _section("Perbandingan Luas")
 
@@ -403,11 +401,10 @@ with col_stat:
 
         st.divider()
         
-            # ── Deskripsi kelas ───────────────────────────────────────────────────
+        # -------------------- CLASS DESCRIPTION ---------------------
         _section("Deskripsi Kelas")
 
-        # Tampilkan semua kelas atau hanya yang dipilih
-        active_label = VAL_TO_LABEL.get(sel_class_val)   # None jika "Semua Kelas"
+        active_label = VAL_TO_LABEL.get(sel_class_val) 
         for cls_key, info in CLASS_DESC.items():
             if active_label and cls_key != active_label:
                 continue
@@ -423,7 +420,7 @@ with col_stat:
                 </div>
             </div>""", unsafe_allow_html=True)
     
-        # ── Tabel parameter klik (cadangan di kolom kanan) ────────────────────
+        # -------------------- PIXEL INFO ---------------------
         cp = st.session_state.coffee_clicked_point
         cs = st.session_state.coffee_click_stats
     

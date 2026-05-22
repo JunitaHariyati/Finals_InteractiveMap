@@ -18,6 +18,45 @@ except Exception:
 # Assets ID
 ASSETS = "projects/tugasakhir-473409/assets/"
 
+LC_COLOR = {
+    "Hutan":              "#1b7a2f",
+    "Vegetasi Tergenang": "#0097a7",
+    "Tanaman":            "#8bc34a",
+    "Lahan Terbuka":      "#a1887f",
+    "Padang Rumput":      "#689f38",
+    "Wilayah Terbangun":  "#e53935",
+    "Badan Air":          "#1565c0",
+}
+ 
+LC_VIS = {
+    "min":     1,
+    "max":     7,
+    "palette": ["1b7a2f","0097a7","8bc34a","a1887f","689f38","e53935","1565c0"],
+    "opacity": 0.85,
+}
+ 
+LC_LEGEND = {
+    "Hutan":              "#1b7a2f",
+    "Vegetasi Tergenang": "#0097a7",
+    "Tanaman":            "#8bc34a",
+    "Lahan Terbuka":      "#a1887f",
+    "Padang Rumput":      "#689f38",
+    "Wilayah Terbangun":  "#e53935",
+    "Badan Air / Sungai": "#1565c0",
+}
+ 
+LC_PIXEL_MAP = {
+    1: "Hutan", 2: "Vegetasi Tergenang", 3: "Tanaman",
+    4: "Lahan Terbuka", 5: "Padang Rumput", 6: "Wilayah Terbangun", 7: "Badan Air",
+}
+ 
+BASEMAP_MAP = {
+    "SATELLITE": "Esri WorldImagery",
+    "HYBRID":    "Esri WorldImagery",
+    "ROADMAP":   "OpenStreetMap",
+    "TERRAIN":   "Stamen Terrain",
+}
+
 # Map Config
 MAP_HEIGHT = 700
 DEFAULT_BASEMAP = "SATELLITE"
