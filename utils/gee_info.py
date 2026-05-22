@@ -3,7 +3,7 @@ from utils.gee_layers import build_parameter_stack
 
 @st.cache_data(show_spinner=False)
 def get_polygon_statistics(desa_name):
-    parameter_stack = build_parameter_stack
+    parameter_stack = build_parameter_stack()
     desaAgats = ee.FeatureCollection(ASSETS + "DesaAgats")
 
     desa_geometry = desaAgats.filter(
