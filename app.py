@@ -24,9 +24,13 @@ st.markdown("""
 
 # --- Pages ---
 home = st.Page("pages/Home.py", title="Home", default=True)
-coffee = st.Page("pages/LSA/Kopi_Liberika.py", title="Kopi")
 avocado = st.Page("pages/LSA/Alpukat.py", title="Alpukat")
+cashew = st.Page("pages/LSA/Cashew.py", title="Kacang Mete")
+citrus = st.Page("pages/LSA/Citrus.py", title="Jeruk")
+cocoa = st.Page("pages/LSA/Cocoa.py", title="Kokoa")
+coconut = st.Page("pages/LSA/Coconut.py", title="Kelapa")
 durian = st.Page("pages/LSA/Durian.py", title="Durian")
+coffee = st.Page("pages/LSA/Kopi_Liberika.py", title="Kopi Liberika")
 
 # --- Navigation Bar ---
 with st.sidebar:
@@ -38,8 +42,12 @@ with st.sidebar:
     st.page_link(coffee)
     st.page_link(avocado)
     st.page_link(durian)
+    st.page_link(cocoa)
+    st.page_link(cashew)
+    st.page_link(citrus)
+    st.page_link(coconut)
 
 # Router
-pg = st.navigation([home, coffee, avocado, durian])
+pg = st.navigation([home, coffee, avocado, durian, cocoa, cashew, citrus, coconut])
 
 pg.run()
