@@ -235,7 +235,7 @@ with col_stat:
             </div>""", unsafe_allow_html=True)
  
         # ── Wilayah aktif ─────────────────────────────────────────────────
-        _sec("Wilayah Aktif")
+        _sec("Statistik Wilayah")
         st.markdown(f"""
         <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;
                     padding:12px 14px;margin-bottom:8px;">

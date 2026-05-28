@@ -166,7 +166,7 @@ else:
     )
     region_geometry = desa_fc.geometry()
     map_center_obj  = desa_fc
-    zoom_level      = 13
+    zoom_level      = 15
 
 # -------------------- CALCULATE AREA ---------------------
 
@@ -309,7 +309,18 @@ with col_stat:
     
     # -------------------- LUAS AREA ---------------------
     with stat_container:
-        _section("Statistik Luas")
+        _section("Statistik Wilayah")
+        wilayah_title = (
+            "Desa " + st.session_state.coffee_desa
+            if st.session_state.coffee_desa != "Semua Desa"
+            else "Distrik Agats"
+        )
+
+        st.markdown(f"""
+        <div style="font-size:2rem;font-weight:700;color:#1a2332;">
+            {wilayah_title}
+        </div>
+        """, unsafe_allow_html=True)
         st.metric("Total Luas", f"{total_area:,.2f} ha")
 
         m1, m2 = st.columns(2)

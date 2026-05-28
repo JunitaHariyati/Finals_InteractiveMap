@@ -163,7 +163,7 @@ else:
     )
     region_geometry = desa_fc.geometry()
     map_center_obj  = desa_fc
-    zoom_level      = 13
+    zoom_level      = 15
 
 # -------------------- CALCULATE AREA ---------------------
 
