@@ -172,8 +172,8 @@ with st.spinner("Menghitung statistik luas…"):
         asset_key=asset_id,
         _image=filtered_image,
         _region_geometry=region_geometry,
-        region_key=st.session_state.cocoa_desa,
-        method_key=st.session_state.cocoa_method
+        region_key=st.session_state.coconut_desa,
+        method_key=st.session_state.coconut_method
     )
 
 if sel_class_val != 0:
