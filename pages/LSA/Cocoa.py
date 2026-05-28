@@ -70,7 +70,7 @@ st.markdown("""
 # -------------------- MAIN PAGE ---------------------
 
 # HEADER
-st.title("Analisis Kesesuaian Lahan - Kokoa")
+st.title("Analisis Kesesuaian Lahan - Kakao")
 
 # -------------------- FILTERING OPTION ---------------------
 with st.container():
