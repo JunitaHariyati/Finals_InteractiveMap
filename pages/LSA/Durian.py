@@ -1,7 +1,6 @@
 # Library
 from config import *
 from utils.gee_cache import (get_desa_list, calculate_area_stats)
-from utils.gee_info import (get_polygon_statistics)
 from utils.gee_layers import (build_parameter_stack)
 
 # -------------------- INITIALIZATION ---------------------
@@ -51,6 +50,11 @@ st.markdown("""
         overflow-x: hidden;
         padding-right: 4px;
     }}
+            
+    label[data-testid="stWidgetLabel"] p {
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+    }
     
     [data-testid="block-container"]
     [data-testid="stHorizontalBlock"]
@@ -74,18 +78,12 @@ st.title("Analisis Kesesuaian Lahan - Durian")
 
 # -------------------- FILTERING OPTION ---------------------
 with st.container():
-    st.markdown("""
-    <div style="font-size:.65rem;font-weight:600;text-transform:uppercase;
-                letter-spacing:1px;color:#484f58;margin-bottom:6px">
-        ⚙ Filter &amp; Kontrol
-    </div>
-    """, unsafe_allow_html=True)
  
     fc1, fc2, fc3 = st.columns([1.8, 2.4, 2.4])
  
     with fc1:
         method = st.radio(
-            "Metode LSA",
+            "METODE ANALISIS",
             ["Weighted Average"],
             index=0,
             horizontal=True,
@@ -100,7 +98,7 @@ with st.container():
         desa_list    = get_desa_list()
         desa_options = ["Semua Desa"] + desa_list
         sel_desa = st.selectbox(
-            "Wilayah Desa",
+            "WILAYAH DESA",
             desa_options,
             index=desa_options.index(st.session_state.durian_desa)
                   if st.session_state.durian_desa in desa_options else 0,
@@ -114,7 +112,7 @@ with st.container():
     with fc3:
         class_options = list(CLASS_OPTIONS.keys())
         sel_class = st.selectbox(
-            "Kelas Kesesuaian",
+            "KELAS KESESUAIAN",
             class_options,
             index=class_options.index(st.session_state.durian_class)
                   if st.session_state.durian_class in class_options else 0,

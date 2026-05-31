@@ -98,59 +98,8 @@ hr {{ border-color: #e2e8f0 !important; }}
 # ----------------- HEADER -----------------
 
 st.markdown("""
-    <span style="font-size:3rem;font-weight:800;color:#1a2332;">WebGIS Kesesuaian Lahan Distrik Agats</span>
-    <div style="font-size:1rem;color:#475569;line-height:1.65;width:100%;">
-        Sistem informasi geografis berbasis web untuk analisis kesesuaian lahan
-        komoditas pertanian di <strong style="color:#16a34a;">Distrik Agats</strong>,
-        Kabupaten Asmat, Provinsi Papua Selatan. Data diproses menggunakan
-        <strong style="color:#2563eb;">Google Earth Engine</strong> dengan citra
-        Sentinel-2 tahun 2025.
-    </div>
+    <span style="font-size:3rem;font-weight:800;color:#1a2332;">WebGIS Kesesuaian Lahan Distrik Agats, Kabupaten Asmat, Provinsi Papua Selatan</span>
 """, unsafe_allow_html=True)
-
-# ══════════════════════════════════════════════════════════════════════════════
-# METODOLOGI — 4 kartu
-# ══════════════════════════════════════════════════════════════════════════════
- 
-st.markdown("""
-<div style="font-size:1rem;font-weight:700;text-transform:uppercase;
-            letter-spacing:1.2px;color:#1a2332;margin-bottom:8px;">
-    Alur Metodologi
-</div>""", unsafe_allow_html=True)
- 
-m1, m2, m3, m4 = st.columns(4)
- 
-def _method_card(col, step, title, desc, color, bg):
-    with col:
-        st.markdown(f"""
-        <div style="background:{bg};border:1px solid {color}30;
-                    border-top:3px solid {color};border-radius:10px;
-                    padding:14px 14px 12px;height:100%;">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-                <span style="font-size:.7rem;font-weight:700;text-transform:uppercase;
-                             letter-spacing:1px;color:{color};">LANGKAH {step}</span>
-            </div>
-            <div style="font-size:1rem;font-weight:700;color:#1a2332;margin-bottom:5px;">
-                {title}
-            </div>
-            <div style="font-size:.72rem;color:#64748b;line-height:1.55;">{desc}</div>
-        </div>""", unsafe_allow_html=True)
- 
-_method_card(m1, "1", "Pengumpulan Data",
-    "Sentinel-2 2025, ERA5 Monthly Climate, SRTM DEM 90m, CHIRPS Precipitation Daily, SoilGrids Topsoil.",
-    "#2563eb", "#eff6ff")
-_method_card(m2, "2", "Klasifikasi Hierarki",
-    "Level-1: Wilayah Terbangun, Vegetasi, Badan Air. Level-2B: kelas vegetasi detail.",
-    "#16a34a", "#f0fdf4")
-_method_card(m3, "3", "Analisis Kesesuaian Lahan",
-    "Weighted Average & Limiting Factor berbasis FAO Land Evaluation Framework 1976.",
-    "#d97706", "#fffbeb")
-_method_card(m4, "4", "Visualisasi",
-    "Dashboard WebGIS interaktif menampilkan statistik luas, grafik, info detail per piksel.",
-    "#7c3aed", "#faf5ff")
- 
-st.markdown("<div style='margin-bottom:16px'></div>", unsafe_allow_html=True)
-
  
 # ══════════════════════════════════════════════════════════════════════════════
 # DATA GEE
@@ -301,7 +250,7 @@ with col_stat:
         # ── Tentang peta ──────────────────────────────────────────────────
         _sec("Tentang Peta Tutupan Lahan")
         st.markdown("""
-        <div style="font-size:0.85rem;color:#475569;line-height:1.65;
+        <div style="font-size:1rem;color:#475569;line-height:1.65;
                     background:#f8fafc;border:1px solid #e2e8f0;
                     border-radius:8px;padding:12px 13px;">
             Penjelasan kelas tutupan lahan sebagai berikut.
@@ -326,7 +275,7 @@ with col_stat:
         params = [
             ("🌧️", "Curah Hujan Tahunan",  "mm/tahun"),
             ("🌡️", "Suhu Rata-rata",        "°C"),
-            ("💧", "Kelembaban Relatif",    "%"),
+            ("💧", "Kelembapan Relatif",    "%"),
             ("⛰️", "Elevasi",               "mdpl"),
             ("📐", "Kemiringan Lereng",     "%"),
             ("🧪", "pH Tanah",              "–"),
@@ -337,57 +286,57 @@ with col_stat:
         for icon, name, unit in params:
             st.markdown(f"""
             <div style="display:flex;align-items:center;gap:8px;padding:4px 0;
-                        border-bottom:1px solid #f1f5f9;font-size:.73rem;">
+                        border-bottom:1px solid #f1f5f9;font-size:1rem;">
                 <span>{icon}</span>
                 <span style="flex:1;color:#334155;">{name}</span>
-                <span style="color:#94a3b8;font-size:.65rem;">{unit}</span>
+                <span style="color:#94a3b8;font-size:1rem;">{unit}</span>
             </div>""", unsafe_allow_html=True)
  
 # ══════════════════════════════════════════════════════════════════════════════
 # FOOTER INFO — 3 kartu
 # ══════════════════════════════════════════════════════════════════════════════
  
-st.markdown("<div style='margin-top:20px'></div>", unsafe_allow_html=True)
+# st.markdown("<div style='margin-top:20px'></div>", unsafe_allow_html=True)
  
-fi1, fi2, fi3 = st.columns(3)
+# fi1, fi2, fi3 = st.columns(3)
  
-def _info_card(col, icon, title, lines, color, bg, border):
-    with col:
-        items = "".join(f"""
-        <div style="display:flex;gap:7px;padding:3px 0;font-size:.72rem;">
-            <span style="color:{color};flex-shrink:0;margin-top:1px;">▸</span>
-            <span style="color:#475569;">{l}</span>
-        </div>""" for l in lines)
-        st.markdown(f"""
-        <div style="background:{bg};border:1px solid {border};
-                    border-radius:10px;padding:14px 15px;height:100%;">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;">
-                <span style="font-size:1.2rem;">{icon}</span>
-                <span style="font-size:.78rem;font-weight:700;color:#1a2332;">{title}</span>
-            </div>
-            {items}
-        </div>""", unsafe_allow_html=True)
+# def _info_card(col, icon, title, lines, color, bg, border):
+#     with col:
+#         items = "".join(f"""
+#         <div style="display:flex;gap:7px;padding:3px 0;font-size:.72rem;">
+#             <span style="color:{color};flex-shrink:0;margin-top:1px;">▸</span>
+#             <span style="color:#475569;">{l}</span>
+#         </div>""" for l in lines)
+#         st.markdown(f"""
+#         <div style="background:{bg};border:1px solid {border};
+#                     border-radius:10px;padding:14px 15px;height:100%;">
+#             <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;">
+#                 <span style="font-size:1.2rem;">{icon}</span>
+#                 <span style="font-size:.78rem;font-weight:700;color:#1a2332;">{title}</span>
+#             </div>
+#             {items}
+#         </div>""", unsafe_allow_html=True)
  
-_info_card(fi1, "🛰️", "Sumber Data", [
-    "Sentinel-2 MSI L2A (2025)",
-    "ERA5 Monthly Climate (2025)",
-    "SRTM DEM 90m",
-    "SoilGrids v2 Topsoil",
-    "DesaAgats FeatureCollection",
-], "#2563eb", "#eff6ff", "#bfdbfe")
+# _info_card(fi1, "🛰️", "Sumber Data", [
+#     "Sentinel-2 MSI L2A (2025)",
+#     "ERA5 Monthly Climate (2025)",
+#     "SRTM DEM 90m",
+#     "SoilGrids v2 Topsoil",
+#     "DesaAgats FeatureCollection",
+# ], "#2563eb", "#eff6ff", "#bfdbfe")
  
-_info_card(fi2, "⚙️", "Metode Analisis", [
-    "Klasifikasi Hierarki Bertingkat",
-    "Random Forest Classifier",
-    "FAO Land Evaluation Framework 1976",
-    "Weighted Average (WA)",
-    "Limiting Factor (LF)",
-], "#16a34a", "#f0fdf4", "#bbf7d0")
+# _info_card(fi2, "⚙️", "Metode Analisis", [
+#     "Klasifikasi Hierarki Bertingkat",
+#     "Random Forest Classifier",
+#     "FAO Land Evaluation Framework 1976",
+#     "Weighted Average (WA)",
+#     "Limiting Factor (LF)",
+# ], "#16a34a", "#f0fdf4", "#bbf7d0")
  
-_info_card(fi3, "📐", "Spesifikasi Teknis", [
-    "Resolusi spasial: 90 m",
-    "Proyeksi: WGS84 (EPSG:4326)",
-    "Scale reduksi: 90 m/piksel",
-    "Luas: ee.Image.pixelArea()",
-    "Reduce: ee.Reducer.sum()",
-], "#d97706", "#fffbeb", "#fde68a")
+# _info_card(fi3, "📐", "Spesifikasi Teknis", [
+#     "Resolusi spasial: 90 m",
+#     "Proyeksi: WGS84 (EPSG:4326)",
+#     "Scale reduksi: 90 m/piksel",
+#     "Luas: ee.Image.pixelArea()",
+#     "Reduce: ee.Reducer.sum()",
+# ], "#d97706", "#fffbeb", "#fde68a")

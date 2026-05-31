@@ -108,7 +108,7 @@ LEGEND_DICT = {
 PARAM_BAND_NAMES = {
         "Rainfall_Annual": "Curah Hujan (mm/tahun)",
         "Temp_Annual":     "Suhu (°C)",
-        "RH_Annual":       "Kelembaban (%)",
+        "RH_Annual":       "Kelembapan (%)",
         "elevation":       "Elevasi (mdpl)",
         "slope_pct":       "Lereng (%)",
         "cec":             "CEC (mmol/kg)",

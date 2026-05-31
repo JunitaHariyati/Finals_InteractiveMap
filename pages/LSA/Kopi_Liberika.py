@@ -1,7 +1,6 @@
 # Library
 from config import *
-from utils.gee_cache import (get_desa_list, calculate_area_stats)
-from utils.gee_info import (get_polygon_statistics)
+from utils.gee_cache import (get_desa_list, calculate_area_stats, calculate_area_stats_kopi)
 from utils.gee_layers import (build_parameter_stack)
 
 # -------------------- INITIALIZATION ---------------------
@@ -31,6 +30,11 @@ st.markdown("""
             
     [data-testid="stMetricValue"] {
         font-size: 30px;
+    }
+            
+    [data-testid="stWidgetLabel"] p {
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
     }
             
     [data-testid="block-container"]
@@ -63,6 +67,7 @@ st.markdown("""
     > [data-testid="stColumn"]:last-of-type::-webkit-scrollbar-thumb {{
         background: #000000; border-radius: 2px;
     }}
+        
     </style>
     """,unsafe_allow_html=True)
 
@@ -74,18 +79,12 @@ st.title("Analisis Kesesuaian Lahan - Kopi Liberika")
 
 # -------------------- FILTERING OPTION ---------------------
 with st.container():
-    st.markdown("""
-    <div style="font-size:.65rem;font-weight:600;text-transform:uppercase;
-                letter-spacing:1px;color:#484f58;margin-bottom:6px">
-        ⚙ Filter &amp; Kontrol
-    </div>
-    """, unsafe_allow_html=True)
  
     fc1, fc2, fc3 = st.columns([1.8, 2.4, 2.4])
  
     with fc1:
         method = st.radio(
-            "Metode LSA",
+            "METODE ANALISIS",
             ["Weighted Average", "Limiting Factor"],
             index=0 if st.session_state.coffee_method == "Weighted Average" else 1,
             horizontal=True,
@@ -100,7 +99,7 @@ with st.container():
         desa_list    = get_desa_list()
         desa_options = ["Semua Desa"] + desa_list
         sel_desa = st.selectbox(
-            "Wilayah Desa",
+            "WILAYAH DESA",
             desa_options,
             index=desa_options.index(st.session_state.coffee_desa)
                   if st.session_state.coffee_desa in desa_options else 0,
@@ -114,7 +113,7 @@ with st.container():
     with fc3:
         class_options = list(CLASS_OPTIONS.keys())
         sel_class = st.selectbox(
-            "Kelas Kesesuaian",
+            "KELAS KESESUAIAN",
             class_options,
             index=class_options.index(st.session_state.coffee_class)
                   if st.session_state.coffee_class in class_options else 0,
@@ -134,7 +133,7 @@ else:
     asset_id = ASSETS + "LSA_liberica_coffee_WA_2025"
 
 veget_mask = ee.Image(VEGETATION).neq(1).And(ee.Image(VEGETATION).neq(2))
-image_raw  = ee.Image(asset_id).updateMask(veget_mask)
+image_raw  = ee.Image(asset_id) .updateMask(veget_mask)
 
 # -------------------- FILTER CLASS ---------------------
 sel_class_val = CLASS_OPTIONS[st.session_state.coffee_class]
@@ -171,13 +170,11 @@ else:
 # -------------------- CALCULATE AREA ---------------------
 
 with st.spinner("Menghitung statistik luas…"):
-    df_area = calculate_area_stats(
-        asset_key=asset_id,
-        _image=filtered_image,
-        _region_geometry=region_geometry,
-        region_key=st.session_state.coffee_desa,
-        method_key=st.session_state.coffee_method
-    )
+    df_area = calculate_area_stats_kopi(
+    asset_key=asset_id,
+    region_key=st.session_state.coffee_desa,
+    method_key=st.session_state.coffee_method
+)
 
 if sel_class_val != 0:
     df_area = df_area[df_area["Kelas"] == VAL_TO_LABEL[sel_class_val]]
