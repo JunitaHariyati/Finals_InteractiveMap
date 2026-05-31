@@ -25,7 +25,7 @@ st.markdown("""
 # --- Pages ---
 home = st.Page("pages/Home.py", title="Home", default=True)
 avocado = st.Page("pages/LSA/Alpukat.py", title="Alpukat")
-cashew = st.Page("pages/LSA/Cashew.py", title="Kacang Mete")
+cashew = st.Page("pages/LSA/Cashew.py", title="Jambu Mete")
 citrus = st.Page("pages/LSA/Citrus.py", title="Jeruk")
 cocoa = st.Page("pages/LSA/Cocoa.py", title="Kakao")
 coconut = st.Page("pages/LSA/Coconut.py", title="Kelapa")
