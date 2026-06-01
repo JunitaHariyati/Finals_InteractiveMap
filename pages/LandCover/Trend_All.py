@@ -95,8 +95,6 @@ st.markdown("""
     <span style="font-size:3rem;font-weight:800;color:#1a2332;">Tren Perubahan Tutupan Lahan Distrik Agats (2020-2025)</span>
 """, unsafe_allow_html=True)
 
-st.markdown("<div style='margin-bottom:8px'></div>", unsafe_allow_html=True)
-
 # ══════════════════════════════════════════════════════════════════════════════
 # GEE — AREA
 # ══════════════════════════════════════════════════════════════════════════════
@@ -184,7 +182,7 @@ with col_left:
 # ─────────────────────────────────────────────────────────────────────────────
 def _section_label(text: str, margin_top: str = "10px"):
     st.markdown(f"""
-    <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;
+    <div style="font-size:1rem;font-weight:700;text-transform:uppercase;
                 letter-spacing:1px;color:#1a2332;margin:{margin_top} 0 5px;
                 padding-bottom:3px;border-bottom:1px solid #e2e8f0;">
         {text}
