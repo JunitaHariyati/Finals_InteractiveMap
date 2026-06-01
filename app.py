@@ -24,6 +24,8 @@ st.markdown("""
 
 # --- Pages ---
 home = st.Page("pages/Home.py", title="Home", default=True)
+trend_all = st.Page("pages/LandCover/Trend_All.py", title="Tren Keseluruhan Tahun")
+compare_trend = st.Page("pages/LandCover/Compare.py", title="Perbandingan 2 Tahun")
 avocado = st.Page("pages/LSA/Alpukat.py", title="Alpukat")
 cashew = st.Page("pages/LSA/Cashew.py", title="Jambu Mete")
 citrus = st.Page("pages/LSA/Citrus.py", title="Jeruk")
@@ -38,6 +40,10 @@ with st.sidebar:
     st.markdown("### Halaman Utama")
     st.page_link(home)
 
+    st.markdown('### Analisis Tutupan Lahan')
+    st.page_link(trend_all)
+    st.page_link(compare_trend)
+
     st.markdown("### Analisis Kesesuaian Wilayah")
     st.page_link(coffee)
     st.page_link(avocado)
@@ -48,6 +54,6 @@ with st.sidebar:
     st.page_link(coconut)
 
 # Router
-pg = st.navigation([home, coffee, avocado, durian, cocoa, cashew, citrus, coconut])
+pg = st.navigation([home, trend_all, compare_trend, coffee, avocado, durian, cocoa, cashew, citrus, coconut])
 
 pg.run()

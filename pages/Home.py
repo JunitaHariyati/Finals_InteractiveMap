@@ -3,7 +3,7 @@ from utils.gee_cache import get_desa_list, calculate_area_stats
 
 # -------------------- INITIALIZATION ---------------------
 
-LC_ASSETS = ASSETS + "final_landcover_v1_2025" 
+LC_ASSETS = ASSETS + "LC_2025" 
 
 # -------------------- CSS ---------------------
 st.markdown(f"""
@@ -191,7 +191,7 @@ with col_stat:
             <div style="font-size:1rem;color:#64748b;margin-bottom:2px;">Wilayah</div>
             <div style="font-size:1.3rem;font-weight:700;color:#1a2332;">Distrik Agats</div>
             <div style="font-size:1rem;color:#94a3b8;margin-top:3px;">
-                Total luas teranalisis
+                Total luas teranalisis (Tahun 2025)
             </div>
             <div style="font-size:1.7rem;font-weight:800;color:#15803d;margin-top:1px;">
                 {total_lc:,.1f} ha
@@ -278,9 +278,9 @@ with col_stat:
             ("💧", "Kelembapan Relatif",    "%"),
             ("⛰️", "Elevasi",               "mdpl"),
             ("📐", "Kemiringan Lereng",     "%"),
-            ("🧪", "pH Tanah",              "–"),
+            ("🧪", "pH Tanah",              "-"),
             ("🪨", "KTK / CEC",             "cmol/kg"),
-            ("🌱", "C/N Ratio",             "–"),
+            ("🌱", "C/N Ratio",             "-"),
             ("🏔️", "Tekstur Tanah",         "% liat/pasir/debu"),
         ]
         for icon, name, unit in params:
