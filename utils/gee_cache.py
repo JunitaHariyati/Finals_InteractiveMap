@@ -9,7 +9,7 @@ def get_desa_list():
     return desa_list
 
 @st.cache_data(show_spinner=False)
-def calculate_area_stats(asset_key, image, region_geometry, region_key="all", method_key="WA"):
+def calculate_area_stats(asset_key, _image, _region_geometry, region_key="all", method_key="WA"):
 
     area_image = ee.Image.pixelArea().divide(10000).rename("area")
 
