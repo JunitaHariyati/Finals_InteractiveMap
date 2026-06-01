@@ -121,22 +121,22 @@ PARAM_BAND_NAMES = {
 
 CLASS_DESC = {
     "S1": {
-        "title": "S1 – Sangat Sesuai",
+        "title": "S1 - Sangat Sesuai",
         "desc":  "Lahan tanpa pembatas berarti atau hanya memiliki pembatas sangat ringan "
                  "yang tidak menurunkan produktivitas secara signifikan.",
     },
     "S2": {
-        "title": "S2 – Cukup Sesuai",
+        "title": "S2 - Cukup Sesuai",
         "desc":  "Lahan dengan pembatas sedang yang mempengaruhi produktivitas. "
                  "Diperlukan input atau tindakan pengelolaan tertentu.",
     },
     "S3": {
-        "title": "S3 – Sesuai Marginal",
+        "title": "S3 - Sesuai Marginal",
         "desc":  "Lahan dengan pembatas berat yang secara signifikan mengurangi "
                  "produktivitas. Input dan pengelolaan intensif diperlukan.",
     },
     "N": {
-        "title": "N – Tidak Sesuai",
+        "title": "N - Tidak Sesuai",
         "desc":  "Lahan memiliki pembatas sangat berat yang tidak dapat diatasi "
                  "dalam kondisi pengelolaan normal.",
     },

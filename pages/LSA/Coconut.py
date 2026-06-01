@@ -435,7 +435,7 @@ with col_stat:
                 param_rows = []
                 for band, label in PARAM_BAND_NAMES.items():
                     val  = cs.get(band)
-                    disp = f"{float(val):.2f}" if val is not None else "–"
+                    disp = f"{float(val):.2f}" if val is not None else "-"
                     param_rows.append({"Parameter": label, "Nilai": disp})
     
                 st.dataframe(
