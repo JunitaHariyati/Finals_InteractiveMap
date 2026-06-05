@@ -1,132 +1,22 @@
 from config import *
-from utils.gee_cache import get_desa_list, calculate_area_stats
+from utils.gee_cache import calc_lc_area_year
 
-# -------------------- INITIALIZATION ---------------------
-
+# ===================== INITIALIZATION =======================
 LC_ASSETS = ASSETS + "LC_2025" 
+load_css()
 
-# -------------------- CSS ---------------------
-st.markdown(f"""
-<style>
-
-
-/* ── Hide chrome ── */
-#MainMenu, footer, header {{ visibility: hidden; }}
-.stDeployButton {{ display: none; }}
-[data-testid="stToolbar"] {{ display: none; }}
- 
-/* ── Kolom peta sticky ── */
-[data-testid="stHorizontalBlock"] > div:first-child {{
-    top: 0;
-    align-self: flex-start;
-    z-index: 1;
-}}
- 
-/* ── Kolom kanan scroll mandiri ── */
-[data-testid="stHorizontalBlock"] > div:last-child {{
-    padding-right: 4px;
-}}
-[data-testid="stHorizontalBlock"] > div:last-child::-webkit-scrollbar {{ width: 4px; }}
-[data-testid="stHorizontalBlock"] > div:last-child::-webkit-scrollbar-track {{ background: transparent; }}
-[data-testid="stHorizontalBlock"] > div:last-child::-webkit-scrollbar-thumb {{
-    background: #cbd5e1; border-radius: 2px;
-}}
- 
-/* ── Metric ── */
-[data-testid="stMetricValue"] {{
-    font-size: 1.25rem !important;
-    font-weight: 700 !important;
-    color: #1a2332 !important;
-}}
-[data-testid="stMetricLabel"] {{
-    font-size: .72rem !important;
-    color: #64748b !important;
-}}
-[data-testid="stMetric"] {{
-    background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 10px !important;
-    padding: 10px 14px !important;
-}}
- 
-/* ── Selectbox & radio ── */
-div[data-baseweb="select"] > div {{
-    background: #ffffff !important;
-    border-color: #e2e8f0 !important;
-    color: #1a2332 !important;
-    border-radius: 8px !important;
-}}
-div[data-baseweb="select"] > div:hover {{ border-color: #3b82f6 !important; }}
-[data-baseweb="popover"] {{ background: #ffffff !important; }}
- 
-.stRadio label {{
-    background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 6px !important;
-    color: #475569 !important;
-    font-size: .8rem !important;
-}}
-.stRadio label:hover {{ border-color: #3b82f6 !important; color: #3b82f6 !important; }}
- 
-/* ── Button ── */
-.stButton > button {{
-    background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
-    color: #475569 !important;
-    border-radius: 8px !important;
-    font-size: .8rem !important;
-}}
-.stButton > button:hover {{
-    background: #f0f9ff !important;
-    border-color: #3b82f6 !important;
-    color: #3b82f6 !important;
-}}
- 
-/* ── Divider ── */
-hr {{ border-color: #e2e8f0 !important; }}
- 
-/* ── Scrollbar global ── */
-::-webkit-scrollbar {{ width: 5px; }}
-::-webkit-scrollbar-track {{ background: #f1f5f9; }}
-::-webkit-scrollbar-thumb {{ background: #cbd5e1; border-radius: 3px; }}
- 
-/* ── Dataframe ── */
-[data-testid="stDataFrame"] {{ border: 1px solid #e2e8f0 !important; border-radius: 8px !important; }}
-</style>
-""", unsafe_allow_html=True)
-
-# ----------------- HEADER -----------------
-
+# ===================== HEADER TITLE =======================
 st.markdown("""
     <span style="font-size:3rem;font-weight:800;color:#1a2332;">Peta Tutupan Lahan & Kesesuaian Lahan Distrik Agats, Kabupaten Asmat, Provinsi Papua Selatan</span>
 """, unsafe_allow_html=True)
  
-# ══════════════════════════════════════════════════════════════════════════════
-# DATA GEE
-# ══════════════════════════════════════════════════════════════════════════════
- 
+# ===================== LOAD ASSETS =======================
 desaAgats = ee.FeatureCollection(ASSETS + "DesaAgats")
 lc_image  = ee.Image(LC_ASSETS)
 
-@st.cache_data(show_spinner=False)
-def calc_lc_area():
-    area_img = ee.Image.pixelArea().divide(10000).rename("area")
-    rows = []
-    for val, label in LC_PIXEL_MAP.items():
-        try:
-            ha = round(ee.Number(
-                area_img.updateMask(lc_image.eq(val)).reduceRegion(
-                    reducer=ee.Reducer.sum(), geometry=desaAgats.geometry(),
-                    scale=90, maxPixels=1e13, bestEffort=True,
-                ).get("area")
-            ).getInfo(), 2)
-        except Exception:
-            ha = 0.0
-        rows.append({"Kelas": label, "Area (ha)": ha})
-    return pd.DataFrame(rows)
- 
+# ===================== CALC TOTAL AREA =======================
 with st.spinner("Menghitung luas tutupan lahan…"):
-    df_lc = calc_lc_area()
+    df_lc = calc_lc_area_year(2025)
  
 total_lc    = round(df_lc["Area (ha)"].sum(), 2)
 df_lc_valid = df_lc[df_lc["Area (ha)"] > 0].copy()
@@ -134,16 +24,12 @@ df_lc_valid["Persen (%)"] = (
     (df_lc_valid["Area (ha)"] / total_lc * 100).round(2) if total_lc > 0 else 0.0
 )
  
-# ══════════════════════════════════════════════════════════════════════════════
-# LAYOUT: 70% peta | 30% statistik
-# ══════════════════════════════════════════════════════════════════════════════
+# ===================== LAYOUTING =======================
+# MAP | STATS
  
 col_map, col_stat = st.columns([7, 3], gap="small")
  
-# ─────────────────────────────────────────────────────────────────────────────
-# KOLOM KIRI: PETA
-# ─────────────────────────────────────────────────────────────────────────────
- 
+# ===================== MAP (LEFT) =======================
 with col_map:
     Map = geemap.Map(
         draw_ctrl=False, measure_ctrl=False,
@@ -164,17 +50,14 @@ with col_map:
         desaAgats.style(color="00e676", fillColor="00000000", width=1),
         {}, "Batas Desa",
     )
- 
+    
+    # ADD MAP TO PAGE
     st_folium(Map, height=MAP_HEIGHT, width=None)
  
-# ─────────────────────────────────────────────────────────────────────────────
-# KOLOM KANAN: STATISTIK
-# ─────────────────────────────────────────────────────────────────────────────
- 
+# ===================== STATS (RIGHT) =======================
 with col_stat:
     stat_cont = st.container(height=MAP_HEIGHT)
     with stat_cont:
- 
         def _sec(label):
             st.markdown(f"""
             <div style="font-size:1rem;font-weight:700;text-transform:uppercase;
@@ -183,7 +66,7 @@ with col_stat:
                 {label}
             </div>""", unsafe_allow_html=True)
  
-        # ── Wilayah aktif ─────────────────────────────────────────────────
+        # ===================== TOTAL AREA =======================
         _sec("Statistik Wilayah")
         st.markdown(f"""
         <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;
@@ -198,13 +81,12 @@ with col_stat:
             </div>
         </div>""", unsafe_allow_html=True)
  
-        # ── Luas per kelas ────────────────────────────────────────────────
+        # ===================== AREA LAND COVER =======================
         _sec("Luas per Kelas Tutupan")
         for _, row in df_lc_valid.sort_values("Area (ha)", ascending=False).iterrows():
             pct   = row["Persen (%)"]
             color = LC_COLOR.get(row["Kelas"], "#888")
             bar_w = max(3, int(pct))
-            # Lighten bg: use color + '18'
             st.markdown(f"""
             <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;
                         padding:8px 10px;margin-bottom:5px;">
@@ -213,8 +95,7 @@ with col_stat:
                     <div style="display:flex;align-items:center;gap:7px;">
                         <div style="width:10px;height:10px;border-radius:2px;
                                     background:{color};flex-shrink:0;"></div>
-                        <span style="font-size: 1rem;font-weight:600;
-                                     color:#1a2332;">{row['Kelas']}</span>
+                        <span style="font-size: 1rem;font-weight:600;color:#1a2332;">{row['Kelas']}</span>
                     </div>
                     <span style="font-size:1rem;color:#64748b;font-weight:600;">
                         {pct:.1f}%
@@ -229,7 +110,7 @@ with col_stat:
                 </div>
             </div>""", unsafe_allow_html=True)
  
-        # ── Pie chart ─────────────────────────────────────────────────────
+        # ===================== PIE CHART =======================
         if total_lc > 0:
             _sec("Proporsi Tutupan")
             fig_pie = px.pie(
@@ -247,7 +128,7 @@ with col_stat:
             st.plotly_chart(fig_pie, use_container_width=True,
                             config={"displayModeBar": False})
  
-        # ── Tentang peta ──────────────────────────────────────────────────
+        # ===================== LAND COVER INFO =======================
         _sec("Tentang Peta Tutupan Lahan")
         st.markdown("""
         <div style="font-size:1rem;color:#475569;line-height:1.65;

@@ -1,0 +1,122 @@
+#MainMenu,
+footer,
+header {
+    visibility: hidden;
+}
+
+.stDeployButton {
+    display: none;
+}
+
+[data-testid="stToolbar"] {
+    display: none;
+}
+
+[data-testid="stHorizontalBlock"]>div:first-child {
+    top: 0;
+    align-self: flex-start;
+    z-index: 1;
+}
+
+[data-testid="stHorizontalBlock"]>div:last-child {
+    padding-right: 4px;
+}
+
+[data-testid="stHorizontalBlock"]>div:last-child::-webkit-scrollbar {
+    width: 4px;
+}
+
+[data-testid="stHorizontalBlock"]>div:last-child::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+[data-testid="stHorizontalBlock"]>div:last-child::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 2px;
+}
+
+[data-testid="stMetricValue"] {
+    font-size: 30px;
+}
+
+label[data-testid="stWidgetLabel"] p {
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+label[data-testid="stMetricLabel"] p {
+    font-size: 1.1rem;
+}
+
+[data-testid="stMetric"] {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 10px 14px;
+}
+
+div[data-baseweb="select"]>div {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    color: #1a2332;
+    border-radius: 8px;
+    width: 300px;
+}
+
+div[data-baseweb="select"]>div:hover {
+    border-color: #3b82f6;
+}
+
+[data-baseweb="popover"] {
+    background: #ffffff;
+}
+
+.stRadio label {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    color: #475569;
+    font-size: .8rem;
+}
+
+.stRadio label:hover {
+    border-color: #3b82f6;
+    color: #3b82f6;
+}
+
+.stButton>button {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    border-radius: 8px;
+    font-size: .8rem;
+}
+
+.stButton>button:hover {
+    background: #f0f9ff;
+    border-color: #3b82f6;
+    color: #3b82f6;
+}
+
+hr {
+    border-color: #e2e8f0;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+[data-testid="stDataFrame"] {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}

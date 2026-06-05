@@ -5,19 +5,37 @@ import pandas as pd
 import plotly.express as px
 import folium
 import math
-
 from streamlit_folium import st_folium
 
-# Initialize Earth Engine
+# INITIALIZE EARTH ENGINE
 try:
     ee.Initialize(project="ee-junitahariyati0717")
 except Exception:
     ee.Authenticate()
     ee.Initialize(project="ee-junitahariyati0717")
 
-# Assets ID
+# ASSET ID
 ASSETS = "projects/tugasakhir-473409/assets/"
 
+# FUNCTION TO LOAD CSS
+def load_css(path="utils/style.css"):
+    with open(path, encoding="utf-8") as f:
+        st.markdown(
+            f"<style>{f.read()}</style>",
+            unsafe_allow_html=True
+        )
+
+# ALL LAND COVER ASSETS
+LC_ASSET_BY_YEAR = {
+    2020: ASSETS + "LC_2020",
+    2021: ASSETS + "LC_2021",
+    2022: ASSETS + "LC_2022",
+    2023: ASSETS + "LC_2023",
+    2024: ASSETS + "LC_2024",
+    2025: ASSETS + "LC_2025", 
+}
+
+# LAND COVER VISUALIZATION
 LC_COLOR = {
     "Hutan":              "#1b7a2f",
     "Vegetasi Tergenang": "#0097a7",
@@ -50,18 +68,11 @@ LC_PIXEL_MAP = {
     4: "Lahan Terbuka", 5: "Padang Rumput", 6: "Wilayah Terbangun", 7: "Badan Air",
 }
  
-BASEMAP_MAP = {
-    "SATELLITE": "Esri WorldImagery",
-    "HYBRID":    "Esri WorldImagery",
-    "ROADMAP":   "OpenStreetMap",
-    "TERRAIN":   "Stamen Terrain",
-}
-
-# Map Config
+# MAP CONFIG
 MAP_HEIGHT = 700
 DEFAULT_BASEMAP = "SATELLITE"
 
-# Class Options
+# LAND SUITABILITY CLASS 
 CLASS_OPTIONS = {
     "Semua Kelas": 0,
     "S1 - Sangat Sesuai": 4,
@@ -70,7 +81,9 @@ CLASS_OPTIONS = {
     "N - Tidak sesuai": 1
 }
 
-# Class Visualization
+VAL_TO_LABEL = {1: "N", 2: "S3", 3: "S2", 4: "S1"}
+
+# LAND SUITABILITY VISUALIZATION
 CLASS_VIS = {
     'min': 1,
     'max': 4,
@@ -97,7 +110,7 @@ CLASS_COLOR = {
     "N":  "#E24B4A",
 }
 
-# Legend
+# LAND SUITABILITY LEGEND
 LEGEND_DICT = {
     "S1 - Sangat Sesuai": "#1D9E75",
     "S2 - Cukup Sesuai": "#97C459",
@@ -105,19 +118,20 @@ LEGEND_DICT = {
     "N - Tidak Sesuai": "#E24B4A"
 }
 
+# PARAMETER BAND NAMES
 PARAM_BAND_NAMES = {
-        "Rainfall_Annual": "Curah Hujan (mm/tahun)",
-        "Temp_Annual":     "Suhu (°C)",
-        "RH_Annual":       "Kelembapan (%)",
-        "elevation":       "Elevasi (mdpl)",
-        "slope_pct":       "Lereng (%)",
-        "cec":             "CEC (mmol/kg)",
-        "cn_ratio":        "C/N Ratio",
-        "ph":              "pH Tanah",
-        "clay_pct":        "Kadar Liat (%)",
-        "sand_pct":        "Kadar Pasir (%)",
-        "silt_pct":        "Kadar Debu (%)",
-    }
+    "Rainfall_Annual": "Curah Hujan (mm/tahun)",
+    "Temp_Annual": "Suhu (C)",
+    "RH_Annual": "Kelembapan (%)",
+    "elevation": "Elevasi (mdpl)",
+    "slope_pct": "Lereng (%)",
+    "cec": "CEC (mmol/kg)",
+    "cn_ratio": "C/N Ratio",
+    "ph": "pH Tanah",
+    "clay_pct": "Kadar Liat (%)",
+    "sand_pct": "Kadar Pasir (%)",
+    "silt_pct": "Kadar Debu (%)",
+}
 
 CLASS_DESC = {
     "S1": {
@@ -141,5 +155,3 @@ CLASS_DESC = {
                  "dalam kondisi pengelolaan normal.",
     },
 }
-
-VAL_TO_LABEL = {1: "N", 2: "S3", 3: "S2", 4: "S1"}

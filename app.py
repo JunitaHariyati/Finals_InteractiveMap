@@ -3,25 +3,27 @@ import streamlit as st
 
 st.set_page_config(page_title="My Streamlit App", layout="wide")
 
-# Initialize Earth Engine
+# ===================== INITIALIZE EARTH ENGINE ACCOUNT =======================
 try:
     ee.Initialize(project="ee-junitahariyati0717")
 except Exception:
     ee.Authenticate()
     ee.Initialize(project="ee-junitahariyati0717")
 
+# ===================== CSS =======================
 st.markdown("""
 <style>
-
-/* Hide default multipage navigation */
+#MainMenu, footer, header {{ visibility: hidden; }}
+.stDeployButton {{ display: none; }}
+[data-testid="stToolbar"] {{ display: none; }}
+            
 [data-testid="stSidebarNav"] {
     display: none;
 }
-
 </style>
 """, unsafe_allow_html=True)
 
-# --- Pages ---
+# ===================== PAGES =======================
 home = st.Page("pages/Home.py", title="Home", default=True)
 trend_all = st.Page("pages/LandCover/Trend_All.py", title="Perbandingan Semua Tahun")
 compare_trend = st.Page("pages/LandCover/Compare.py", title="Perbandingan 2 Tahun")
@@ -33,7 +35,7 @@ coconut = st.Page("pages/LSA/Coconut.py", title="Kelapa")
 durian = st.Page("pages/LSA/Durian.py", title="Durian")
 coffee = st.Page("pages/LSA/Kopi_Liberika.py", title="Kopi Liberika")
 
-# --- Navigation Bar ---
+# ===================== NAVIGATION BAR =======================
 with st.sidebar:
 
     st.markdown("### Halaman Utama")
@@ -52,7 +54,7 @@ with st.sidebar:
     st.page_link(citrus)
     st.page_link(coconut)
 
-# Router
+# ===================== ROUTER =======================
 pg = st.navigation([home, trend_all, compare_trend, coffee, avocado, durian, cocoa, cashew, citrus, coconut])
 
 pg.run()
