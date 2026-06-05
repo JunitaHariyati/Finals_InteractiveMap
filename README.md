@@ -13,19 +13,19 @@ Fitur-fitur utama pada aplikasi:
 
 ## Cara Menjalankan Aplikasi
 
-# Install Dependency
+### Install Dependency
 1. Pengguna harus menginstall semua library yang dibutuhkan.
 ```bash
 pip install -r requirements.txt
 ```
 
-# Autentikasi Earth Engine
+### Autentikasi Earth Engine
 2. Pengguna harus memiliki akun Google Earth Engine dengan mendaftarkan menggunakan akun Google atau membuat akun baru pada link ```https://code.earthengine.google.com```. Kemudian jalankan perintah berikut di terminal.
 ```bash
 earthengine authenticate
 ```
 
-# Jalankan Aplikasi
+### Jalankan Aplikasi
 3. Aplikasi dijalankan menggunakan perintah berikut. Aplikasi dapat diakses pada web browser pada halaman ```http://localhost:8501/```
 ```bash
 streamlit run app.py
