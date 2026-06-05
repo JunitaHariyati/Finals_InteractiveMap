@@ -32,6 +32,9 @@ streamlit run app.py
 ```
 ### Credits:
 Tugas Akhir 
+
 Junita Hariyati
+
 Informatika - Data Science
+
 Universitas Katolik Parahyangan
