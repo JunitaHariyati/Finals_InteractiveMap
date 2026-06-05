@@ -98,7 +98,7 @@ hr {{ border-color: #e2e8f0 !important; }}
 # ----------------- HEADER -----------------
 
 st.markdown("""
-    <span style="font-size:3rem;font-weight:800;color:#1a2332;">WebGIS Kesesuaian Lahan Distrik Agats, Kabupaten Asmat, Provinsi Papua Selatan</span>
+    <span style="font-size:3rem;font-weight:800;color:#1a2332;">Peta Tutupan Lahan & Kesesuaian Lahan Distrik Agats, Kabupaten Asmat, Provinsi Papua Selatan</span>
 """, unsafe_allow_html=True)
  
 # ══════════════════════════════════════════════════════════════════════════════
@@ -191,7 +191,7 @@ with col_stat:
             <div style="font-size:1rem;color:#64748b;margin-bottom:2px;">Wilayah</div>
             <div style="font-size:1.3rem;font-weight:700;color:#1a2332;">Distrik Agats</div>
             <div style="font-size:1rem;color:#94a3b8;margin-top:3px;">
-                Total luas teranalisis (Tahun 2025)
+                Total luas (Tahun 2025)
             </div>
             <div style="font-size:1.7rem;font-weight:800;color:#15803d;margin-top:1px;">
                 {total_lc:,.1f} ha

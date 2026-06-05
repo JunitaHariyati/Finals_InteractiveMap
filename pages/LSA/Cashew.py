@@ -31,6 +31,14 @@ st.markdown("""
     [data-testid="stMetricValue"] {
         font-size: 30px;
     }
+    label[data-testid="stWidgetLabel"] p{
+        font-size: 1.3rem;
+        font-weight: 600;
+    }
+              
+    label[data-testid="stMetricLabel"] p{
+        font-size: 1.1rem;
+    }
             
     [data-testid="block-container"]
     [data-testid="stHorizontalBlock"]
@@ -62,11 +70,6 @@ st.markdown("""
     > [data-testid="stColumn"]:last-of-type::-webkit-scrollbar-thumb {{
         background: #000000; border-radius: 2px;
     }}
-    
-    label[data-testid="stWidgetLabel"] p {
-    font-size: 1.05rem !important;
-    font-weight: 700 !important;
-    }
     </style>
     """,unsafe_allow_html=True)
 
@@ -297,7 +300,7 @@ with col_stat:
 
     def _section(label):
         st.markdown(f"""
-        <div style="font-size:1rem;font-weight:600;text-transform:uppercase;
+        <div style="font-size:1.3rem;font-weight:600;text-transform:uppercase;
                     letter-spacing:1px;color:#484f58;margin:10px 0 5px">
             {label}
         </div>""", unsafe_allow_html=True)
@@ -408,7 +411,7 @@ with col_stat:
             st.markdown(f"""
             <div style="border-left:3px solid {color};padding:7px 10px;margin-bottom:7px;
                         background:rgba(255,255,255,.02);border-radius:0 6px 6px 0">
-                <div style="font-weight:600;font-size:.8rem;margin-bottom:2px">
+                <div style="font-weight:600;font-size:1.1rem;margin-bottom:2px">
                     {info['title']}
                 </div>
                 <div style="font-size:1rem;color:#7d8590;line-height:1.5">

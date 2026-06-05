@@ -47,57 +47,68 @@ st.markdown(f"""
 [data-testid="stToolbar"] {{ display: none; }}
 
 [data-testid="stMetricValue"] {{
-    font-size: 1.15rem !important;
-    font-weight: 700 !important;
-    color: #1a2332 !important;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a2332;
 }}
 [data-testid="stMetricLabel"] {{
-    font-size: .7rem !important;
-    color: #64748b !important;
+    font-size: 1rem;
+    color: #64748b;
 }}
 [data-testid="stMetric"] {{
-    background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 10px !important;
-    padding: 8px 12px !important;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 8px 12px;
+}}
+            
+div[data-baseweb="select"] {{
+    max-width: 250px;
+}}
+            
+[data-testid="stWidgetLabel"] p {{
+    font-size: 1.3rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
 }}
 
 div[data-baseweb="select"] > div {{
-    background: #ffffff !important;
-    border-color: #e2e8f0 !important;
-    color: #1a2332 !important;
-    border-radius: 8px !important;
+    background: #ffffff;
+    border-color: #e2e8f0;
+    color: #1a2332;
+    border-radius: 8px;
 }}
-div[data-baseweb="select"] > div:hover {{ border-color: #3b82f6 !important; }}
-[data-baseweb="popover"] {{ background: #ffffff !important; }}
+div[data-baseweb="select"] > div:hover {{ border-color: #3b82f6; }}
+[data-baseweb="popover"] {{ background: #ffffff; }}
 
 .stRadio label {{
-    background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 6px !important;
-    color: #475569 !important;
-    font-size: .8rem !important;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    color: #475569;
+    font-size: .8rem;
 }}
-.stRadio label:hover {{ border-color: #3b82f6 !important; color: #3b82f6 !important; }}
+.stRadio label:hover {{ border-color: #3b82f6; color: #3b82f6; }}
 
 .stButton > button {{
-    background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
-    color: #475569 !important;
-    border-radius: 8px !important;
-    font-size: .8rem !important;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    border-radius: 8px;
+    font-size: .8rem;
 }}
 .stButton > button:hover {{
-    background: #eff6ff !important;
-    border-color: #3b82f6 !important;
-    color: #3b82f6 !important;
+    background: #eff6ff;
+    border-color: #3b82f6;
+    color: #3b82f6;
 }}
+        
 
-hr {{ border-color: #e2e8f0 !important; }}
+hr {{ border-color: #e2e8f0; }}
 ::-webkit-scrollbar {{ width: 5px; }}
 ::-webkit-scrollbar-track {{ background: #f1f5f9; }}
 ::-webkit-scrollbar-thumb {{ background: #cbd5e1; border-radius: 3px; }}
-[data-testid="stDataFrame"] {{ border: 1px solid #e2e8f0 !important; border-radius: 8px !important; }}
+[data-testid="stDataFrame"] {{ border: 1px solid #e2e8f0; border-radius: 8px; }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -106,7 +117,7 @@ hr {{ border-color: #e2e8f0 !important; }}
 # ══════════════════════════════════════════════════════════════════════════════
 
 st.markdown("""
-    <span style="font-size:3rem;font-weight:800;color:#1a2332;">Tren Perubahan Tutupan Lahan Distrik Agats</span>
+    <span style="font-size:3rem;font-weight:800;color:#1a2332;">Perbandingan Perubahan Tutupan Lahan Distrik Agats</span>
 """, unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -186,152 +197,169 @@ df_all = pd.concat(list(dfs.values()), ignore_index=True)
 # LAYOUT UTAMA: TREN | STATISTIK 
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown("---")
-
-col_left, col_right = st.columns([7, 3], gap="small")
 # ─────────────────────────────────────────────────────────────────────────────
 # KOLOM KIRI — TREN
 # ─────────────────────────────────────────────────────────────────────────────
 
-with col_left:
+st.subheader(f"Perbandingan Tutupan Lahan {year_a} vs {year_b}")
 
-    st.subheader(f"Perbandingan Tutupan Lahan {year_a} vs {year_b}")
+df_line = pd.concat([
+df_year_a.assign(Tahun=year_a),
+df_year_b.assign(Tahun=year_b)
+], ignore_index=True)
 
-    df_line = pd.concat([
-    df_year_a.assign(Tahun=year_a),
-    df_year_b.assign(Tahun=year_b)
-    ], ignore_index=True)
+fig_line = px.line(
+    df_line,
+    x="Tahun",
+    y="Area (ha)",
+    color="Kelas",
+    markers=True,
+    color_discrete_map=LC_COLOR,
+)
 
-    fig_line = px.line(
-        df_line,
-        x="Tahun",
-        y="Area (ha)",
-        color="Kelas",
-        markers=True,
-        color_discrete_map=LC_COLOR,
+fig_line.update_traces(
+    line_width=4,
+    marker_size=10
+)
+
+fig_line.update_layout(
+    paper_bgcolor="rgba(0,0,0,0)",
+    plot_bgcolor="rgba(0,0,0,0)",
+    height=500,
+    margin=dict(l=10, r=10, t=10, b=10),
+
+    xaxis=dict(
+        tickmode="array",
+        tickvals=[year_a, year_b],
+        ticktext=[str(year_a), str(year_b)],
+        title="Tahun",
+        showgrid=True,
+        gridcolor="#e2e8f0",
+    ),
+
+    yaxis=dict(
+        title="Luas (ha)",
+        showgrid=True,
+        gridcolor="#e2e8f0",
+    ),
+
+    legend=dict(
+        orientation="h",
+        yanchor="bottom",
+        y=1.02,
+        xanchor="center",
+        x=0.5,
+    ),
+
+    font=dict(
+        family="Segoe UI",
+        size=12,
+        color="#475569"
+    ),
+)
+
+st.plotly_chart(
+    fig_line,
+    use_container_width=True,
+    config={"displayModeBar": False}
+)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# MAP PERBANDINGAN
+# ══════════════════════════════════════════════════════════════════════════════
+st.markdown("---")
+st.markdown("### Map Perbandingan")
+
+# Filter Kelas Tutupan Lahan
+selected_class = st.selectbox(
+"Filter Kelas Tutupan Lahan",
+    list(LC_PIXEL_MAP.values()),
+    index=0
+)
+
+selected_value = next(
+    k for k, v in LC_PIXEL_MAP.items()
+    if v == selected_class
+)
+
+# Layout 
+map_left, map_right = st.columns([5, 5], gap="small")
+
+# Load Image Year A & Year B
+year_a_img = ee.Image(LC_ASSET_BY_YEAR[year_a])
+year_b_img = ee.Image(LC_ASSET_BY_YEAR[year_b])
+
+with map_left:
+    st.markdown("Peta Tutupan Lahan "+str(year_a))
+
+    Map = geemap.Map(
+        draw_ctrl=False, measure_ctrl=False,
+        fullscreen_ctrl=True, zoom_control=True,
+    )
+    Map.options["doubleClickZoom"] = False
+
+    Map.addLayer(
+    year_a_img.updateMask(year_a_img.eq(selected_value)),
+    {
+        "min": selected_value,
+        "max": selected_value,
+        "palette": [
+            LC_COLOR[selected_class].replace("#", "")
+        ]
+    }, selected_class)
+    Map.add_legend(title="Tutupan Lahan "+str(year_a), legend_dict=LC_LEGEND)
+    Map.centerObject(desaAgats, 11)
+
+    # BATAS DESA
+    Map.addLayer(
+        desaAgats.style(color="00e676", fillColor="00000000", width=1),
+        {}, "Batas Desa",
+    )
+    st_folium(Map, height=MAP_HEIGHT, width=None, key=f"map_left_{year_a}")
+
+    st.markdown("### Statistik Luas")
+
+    area_a = df_year_a.iloc[selected_value - 1]["Area (ha)"]
+    
+    st.metric(
+        f"Kelas {selected_class} ({year_a})",
+        f"{area_a:,.1f} ha"
     )
 
-    fig_line.update_traces(
-        line_width=4,
-        marker_size=10
+with map_right:
+    st.markdown("Peta Tutupan Lahan "+str(year_b))
+
+    Map = geemap.Map(
+        draw_ctrl=False, measure_ctrl=False,
+        fullscreen_ctrl=True, zoom_control=True,
     )
+    Map.options["doubleClickZoom"] = False
 
-    fig_line.update_layout(
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        height=500,
-        margin=dict(l=10, r=10, t=10, b=10),
+    Map.addLayer(
+    year_b_img.updateMask(year_b_img.eq(selected_value)),
+    {
+        "min": selected_value,
+        "max": selected_value,
+        "palette": [
+            LC_COLOR[selected_class].replace("#", "")
+        ]
+    }, selected_class)
+    Map.add_legend(title="Tutupan Lahan "+str(year_b), legend_dict=LC_LEGEND)
+    Map.centerObject(desaAgats, 11)
 
-        xaxis=dict(
-            tickmode="array",
-            tickvals=[year_a, year_b],
-            ticktext=[str(year_a), str(year_b)],
-            title="Tahun",
-            showgrid=True,
-            gridcolor="#e2e8f0",
-        ),
-
-        yaxis=dict(
-            title="Luas (ha)",
-            showgrid=True,
-            gridcolor="#e2e8f0",
-        ),
-
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="center",
-            x=0.5,
-        ),
-
-        font=dict(
-            family="Segoe UI",
-            size=12,
-            color="#475569"
-        ),
+    # BATAS DESA
+    Map.addLayer(
+        desaAgats.style(color="00e676", fillColor="00000000", width=1),
+        {}, "Batas Desa",
     )
+ 
+    st_folium(Map, height=MAP_HEIGHT, width=None, key=f"map_left_{year_b}")
 
-    st.plotly_chart(
-        fig_line,
-        use_container_width=True,
-        config={"displayModeBar": False}
+    st.markdown("### Statistik Luas")
+
+    area_b = df_year_b.iloc[selected_value - 1]["Area (ha)"]
+    
+    st.metric(
+        f"Kelas {selected_class} ({year_b})",
+        f"{area_b:,.1f} ha"
     )
-
-# ─────────────────────────────────────────────────────────────────────────────
-# KOLOM KANAN — STATISTIK
-# ─────────────────────────────────────────────────────────────────────────────
-def _section_label(text: str, margin_top: str = "10px"):
-    st.markdown(f"""
-    <div style="font-size:1rem;font-weight:700;text-transform:uppercase;
-                letter-spacing:1px;color:#1a2332;margin:{margin_top} 0 5px;
-                padding-bottom:3px;border-bottom:1px solid #e2e8f0;">
-        {text}
-    </div>""", unsafe_allow_html=True)
-
-with col_right:
-    stat_cont = st.container(height=650)
-    with stat_cont:
-        st.markdown("### Statistik Wilayah")
-        total_a = df_year_a["Area (ha)"].sum()
-        total_b = df_year_b["Area (ha)"].sum()
-
-        st.metric(
-            f"Total {year_b}",
-            f"{total_b:,.1f} ha"
-        )
-
-        pivot_df = (
-            df_all
-            .pivot(
-                index="Kelas",
-                columns="Tahun",
-                values="Area (ha)"
-            )
-        )
-
-        change_df = pivot_df[year_b] - pivot_df[year_a]
-
-        # ── Luas per kelas (tahun A)
-        _section_label(f"Luas Kelas - {year_a}" + (f" vs {year_b}"))
-
-        df_a_sorted = df_year_a.sort_values("Area (ha)", ascending=False)
-
-        df_b_lookup = df_year_b.set_index("Kelas")["Area (ha)"].to_dict()
-
-        html_cards = """
-        <style>
-            * {
-                font-family: "Source Sans", sans-serif;
-            }
-        </style>
-        """
-        for _, row in df_a_sorted.iterrows():
-            cls    = row["Kelas"]
-            ha_a   = row["Area (ha)"]
-            ha_b   = df_b_lookup.get(cls, 0.0)
-            delta  = round(ha_b - ha_a, 2)
-
-            color  = _COLOR.get(cls, "#888")
-            arrow  = "▲" if delta > 0 else ("▼" if delta < 0 else "-")
-            d_col  = "#15803d" if delta > 0 else ("#b91c1c" if delta < 0 else "#64748b")
-            
-            html_cards += f"""
-            <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;
-                        padding:10px 12px;margin-bottom:6px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                    <div style="display:flex;align-items:center;gap:8px;">
-                        <div style="width:10px;height:10px;border-radius:2px;background:{color};"></div>
-                        <span style="font-size:0.85rem;font-weight:600;color:#1a2332;">{cls}</span>
-                    </div>
-                    <span style="font-size:0.8rem;font-weight:700;color:{d_col};">
-                        {arrow} {abs(delta):,.1f} ha
-                    </span>
-                </div>
-                <div style="font-size:0.72rem;color:#64748b;display:flex;justify-content:space-between;">
-                    <span>{year_a}: {ha_a:,.1f} ha</span>
-                    <span>{year_b}: {ha_b:,.1f} ha</span>
-                </div>
-            </div>
-            """
-
-        components.html(html_cards, height=len(change_df) * 65, scrolling=True)
