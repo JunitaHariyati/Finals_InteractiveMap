@@ -1,6 +1,5 @@
 import ee
 import streamlit as st
-import geemap.foliumap as geemap
 
 st.set_page_config(page_title="My Streamlit App", layout="wide")
 
@@ -24,7 +23,7 @@ st.markdown("""
 
 # --- Pages ---
 home = st.Page("pages/Home.py", title="Home", default=True)
-trend_all = st.Page("pages/LandCover/Trend_All.py", title="Tren Keseluruhan Tahun")
+trend_all = st.Page("pages/LandCover/Trend_All.py", title="Perbandingan Semua Tahun")
 compare_trend = st.Page("pages/LandCover/Compare.py", title="Perbandingan 2 Tahun")
 avocado = st.Page("pages/LSA/Alpukat.py", title="Alpukat")
 cashew = st.Page("pages/LSA/Cashew.py", title="Jambu Mete")

@@ -92,7 +92,7 @@ hr {{ border-color: #e2e8f0 !important; }}
 # ══════════════════════════════════════════════════════════════════════════════
 
 st.markdown("""
-    <span style="font-size:3rem;font-weight:800;color:#1a2332;">Tren Perubahan Tutupan Lahan Distrik Agats (2020-2025)</span>
+    <span style="font-size:3rem;font-weight:800;color:#1a2332;">Perubahan Tutupan Lahan Distrik Agats (2020-2025)</span>
 """, unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -146,7 +146,7 @@ col_left, col_right = st.columns([7, 3], gap="small")
 
 with col_left:
 
-    st.subheader("Grafik Tren Luas Tutupan Lahan 2020-2025")
+    st.subheader("Grafik Perubahan Luas Tutupan Lahan 2020-2025")
 
     fig_line = px.line(
         df_all,
