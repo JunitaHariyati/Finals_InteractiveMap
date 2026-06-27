@@ -116,7 +116,7 @@ def calc_lc_area_year(year: int):
                     area_img.updateMask(img.eq(val)).reduceRegion(
                         reducer=ee.Reducer.sum(),
                         geometry=desaAgats.geometry(),
-                        scale=90,
+                        scale=10,
                         maxPixels=1e13,
                         bestEffort=True,
                     ).get("area")).getInfo(),2,)

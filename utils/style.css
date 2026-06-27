@@ -12,6 +12,19 @@ header {
     display: none;
 }
 
+.leaflet-control legend {
+    font-size: 12px;
+}
+
+.legend-title {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.legend-labels li {
+    font-size: 12px;
+}
+
 [data-testid="stHorizontalBlock"]>div:first-child {
     top: 0;
     align-self: flex-start;
@@ -46,6 +59,10 @@ label[data-testid="stWidgetLabel"] p {
 }
 
 label[data-testid="stMetricLabel"] p {
+    font-size: 1.1rem;
+}
+
+[data-testid="stMetricDelta"] p {
     font-size: 1.1rem;
 }
 

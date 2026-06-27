@@ -30,27 +30,34 @@ fc1, fc2, fc3 = st.columns([2, 2, 5])
 
 # LEFT (TAHUN AWAL: YEAR A)
 with fc1:
+    year_a_options = YEARS[:-1]
+
+    if st.session_state.trend_year_a not in year_a_options:
+        st.session_state.trend_year_a = year_a_options[0]
+
     year_a = st.selectbox(
-        "Tahun Awal",YEARS,
-        index=YEARS.index(st.session_state.trend_year_a),key="w_year_a",
+        "Tahun Awal",
+        year_a_options,
+        index=year_a_options.index(st.session_state.trend_year_a),
+        key="w_year_a",
     )
-    # SET SESSION STATE YEAR A
+
     st.session_state.trend_year_a = year_a
 
 # RIGHT (TAHUN AKHIR: YEAR B)
 with fc2:
-    # YEAR B OPTION EXCEPT YEAR A
-    year_b_options = [y for y in YEARS if y != year_a]
+    year_b_options = [y for y in YEARS if y > year_a]
 
-    default_b = st.session_state.trend_year_b
-    if default_b not in year_b_options:
-        default_b = year_b_options[-1]
+    if st.session_state.trend_year_b not in year_b_options:
+        st.session_state.trend_year_b = year_b_options[-1]
 
     year_b = st.selectbox(
-        "Tahun Akhir",year_b_options,
-        index=year_b_options.index(default_b),key="w_year_b",
+        "Tahun Akhir",
+        year_b_options,
+        index=year_b_options.index(st.session_state.trend_year_b),
+        key="w_year_b",
     )
-    # SET SESSION STATE YEAR B
+    
     st.session_state.trend_year_b = year_b
 
 # ===================== LOAD IMAGE =======================
@@ -73,49 +80,97 @@ df_all = pd.concat(list(dfs.values()), ignore_index=True)
 # ===================== LAYOUTING =======================
 st.markdown("---")
 
-# LINE CHART: LAND COVER CHANGES YEAR A -> YEAR B
+# BAR CHART: LAND COVER CHANGES YEAR A -> YEAR B
 st.subheader(f"Perbandingan Tutupan Lahan {year_a} vs {year_b}")
 
-df_line = pd.concat([
+df_bar = pd.concat([
     df_year_a.assign(Tahun=year_a),
     df_year_b.assign(Tahun=year_b)
 ], ignore_index=True)
 
-# LINE CHART
-fig_line = px.line(
-    df_line, x="Tahun", y="Area (ha)",
-    color="Kelas", markers=True, color_discrete_map=LC_COLOR,
+label_map = {
+    "Hutan": "Hutan",
+    "Vegetasi Tergenang": "Vegetasi<br>Tergenang",
+    "Pertanian": "Pertanian",
+    "Lahan Terbuka": "Lahan<br>Terbuka",
+    "Padang Rumput": "Padang<br>Rumput",
+    "Wilayah Terbangun": "Wilayah<br>Terbangun",
+    "Badan Air": "Badan<br>Air",
+}
+
+df_bar["Kategori"] = (
+    df_bar["Kelas"].map(label_map)
+    + "<br>"
+    + df_bar["Tahun"].astype(str)
 )
 
-fig_line.update_traces(
-    line_width=4, marker_size=10
+# BAR CHART
+fig_bar = px.bar(
+    df_bar,
+    x="Kategori",
+    y="Area (ha)",
+    color="Kelas",
+    color_discrete_map=LC_COLOR,
 )
 
-fig_line.update_layout(
-    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-    height=500, margin=dict(l=10, r=10, t=10, b=10),
+for trace in fig_bar.data:
+    kelas = trace.name
+
+    colors = []
+    for x in trace.x:
+        if str(year_a) in x:
+            colors.append(LC_COLOR_DARK[kelas])
+        else:
+            colors.append(LC_COLOR_LIGHT[kelas])
+
+    trace.marker.color = colors
+
+fig_bar.update_layout(
+    paper_bgcolor="rgba(0,0,0,0)",
+    plot_bgcolor="rgba(0,0,0,0)",
+    height=600,
+    margin=dict(l=10, r=10, t=10, b=10),
 
     xaxis=dict(
-        tickmode="array", tickvals=[year_a, year_b],
-        ticktext=[str(year_a), str(year_b)], title="Tahun",
-        showgrid=True, gridcolor="#e2e8f0",
+        title=dict(
+                text="Kelas & Tahun",
+                font=dict(size=16)
+            ),
+        showgrid=False,
+        tickangle=0,
+        tickfont=dict(size=16)
     ),
 
-    yaxis=dict(title="Luas (ha)",showgrid=True,gridcolor="#e2e8f0",),
+    yaxis=dict(
+        title="Luas (ha)",
+        showgrid=True,
+        gridcolor="#e2e8f0",
+        tickfont=dict(size=16)
+    ),
 
     legend=dict(
-        orientation="h",yanchor="bottom",
-        y=1.02,xanchor="center",x=0.5,
+        title=dict(
+                text="Kelas Tutupan Lahan",
+                font=dict(size=20)
+            ),
+        orientation="h",
+        yanchor="bottom",
+        y=1.02,
+        xanchor="center",
+        x=0.5,
+        font=dict(size=20),
     ),
 
     font=dict(
-        family="Segoe UI",size=12,color="#475569"
+        family="Segoe UI",
+        size=12,
+        color="#475569",
     ),
 )
 
 # ADD CHART TO PAGE
 st.plotly_chart(
-    fig_line,
+    fig_bar,
     use_container_width=True,
     config={"displayModeBar": False}
 )
@@ -149,7 +204,7 @@ year_b_img = ee.Image(LC_ASSET_BY_YEAR[year_b])
 
 # ===================== MAP YEAR A (LEFT) =======================
 with map_left:
-    st.markdown("Peta Tutupan Lahan "+str(year_a))
+    st.markdown("### Peta Tutupan Lahan "+str(year_a))
 
     Map = geemap.Map(
         draw_ctrl=False, measure_ctrl=False,
@@ -188,7 +243,7 @@ with map_left:
 
 # ===================== MAP YEAR B (RIGHT) =======================
 with map_right:
-    st.markdown("Peta Tutupan Lahan "+str(year_b))
+    st.markdown("### Peta Tutupan Lahan "+str(year_b))
 
     Map = geemap.Map(
         draw_ctrl=False, measure_ctrl=False,

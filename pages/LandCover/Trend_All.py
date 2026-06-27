@@ -24,6 +24,8 @@ with st.spinner("Menghitung statistik..."):
 # COMBINE ALL YEAR
 df_all = pd.concat(dfs, ignore_index=True)
 
+# st.write(df_all)
+
 # ===================== LAYOUTING =======================
 # CHART | STATS
 
@@ -46,7 +48,41 @@ with col_left:
     )
 
     fig_line.update_layout(
-        height=600, xaxis_title="Tahun", yaxis_title="Luas (ha)",
+        height=700,
+        xaxis=dict(
+            title=dict(
+                text="Tahun",
+                font=dict(size=20)
+            ),
+            tickfont=dict(size=16)
+        ),
+
+        yaxis=dict(
+            title=dict(
+                text="Luas (ha)",
+                font=dict(size=20)
+            ),
+            tickfont=dict(size=16)
+        ),
+
+        font=dict(
+            family="Segoe UI",
+            size=20,
+            color="#1a2332"
+        ),
+        legend=dict(
+            title=dict(
+                text="Kelas Tutupan Lahan",
+                font=dict(size=20)
+            ),
+            orientation="h",
+            x=0,
+            y=1.08,
+            xanchor="left",
+            yanchor="bottom",
+            font=dict(size=20),
+            bgcolor="rgba(255,255,255,0)",
+        )
     )
 
     # ADD CHART TO PAGE
@@ -62,14 +98,14 @@ with col_left:
 # ===================== STATS (RIGHT) =======================
 def _section_label(text: str, margin_top: str = "10px"):
     st.markdown(f"""
-    <div style="font-size:1rem;font-weight:700;text-transform:uppercase;
+    <div style="font-size:1.5rem;font-weight:700;text-transform:uppercase;
                 letter-spacing:1px;color:#1a2332;margin:{margin_top} 0 5px;
                 padding-bottom:3px;border-bottom:1px solid #e2e8f0;">
         {text}
     </div>""", unsafe_allow_html=True)
 
 with col_right:
-    stat_cont = st.container(height=650)
+    stat_cont = st.container(height=700)
     with stat_cont:
         # ===================== TOTAL AREA =======================
         st.markdown("### Statistik Wilayah")
@@ -133,21 +169,60 @@ with col_right:
             d_col = "#15803d" if delta > 0 else "#b91c1c" if delta < 0 else "#64748b"
 
             html_cards += f"""
-            <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;
-                        padding:10px 12px;margin-bottom:6px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                    <div style="display:flex;align-items:center;gap:8px;">
-                        <div style="width:10px;height:10px;border-radius:2px;background:{color};"></div>
-                        <span style="font-size:0.85rem;font-weight:600;color:#1a2332;">{cls}</span>
-                    </div>
-                    <span style="font-size:0.8rem;font-weight:700;color:{d_col};">
+            <div style="
+                background:#ffffff;
+                border:1px solid #dbe3ec;
+                border-left:8px solid {color};
+                border-radius:10px;
+                padding:12px 14px;
+                margin-bottom:10px;
+            ">
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    margin-bottom:10px;
+                ">
+                    <span style="
+                        font-size:18px;
+                        font-weight:700;
+                        color:#1a2332;
+                    ">
+                        {cls}
+                    </span>
+
+                    <span style="
+                        font-size:17px;
+                        font-weight:700;
+                        color:{d_col};
+                    ">
                         {arrow} {abs(delta):,.1f} ha
                     </span>
                 </div>
-                <div style="font-size:0.72rem;color:#64748b;display:flex;justify-content:space-between;">
-                    <span>{first_year}: {ha_awal:,.1f} ha</span>
-                    <span>{last_year}: {ha_akhir:,.1f} ha</span>
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    margin-bottom:6px;
+                    font-size:15px;
+                ">
+                    <span style="color:#64748b;">{first_year}</span>
+                    <span style="font-weight:600;color:#1a2332;">
+                        {ha_awal:,.1f} ha
+                    </span>
                 </div>
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    font-size:15px;
+                ">
+                    <span style="color:#64748b;">{last_year}</span>
+                    <span style="font-weight:600;color:#1a2332;">
+                        {ha_akhir:,.1f} ha
+                    </span>
+                </div>
+
             </div>
             """
 

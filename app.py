@@ -45,16 +45,16 @@ with st.sidebar:
     st.page_link(trend_all)
     st.page_link(compare_trend)
 
-    st.markdown("### Analisis Kesesuaian Wilayah")
+    st.markdown("### Analisis Kesesuaian Lahan")
+    st.page_link(coconut)
     st.page_link(coffee)
-    st.page_link(avocado)
     st.page_link(durian)
     st.page_link(cocoa)
     st.page_link(cashew)
     st.page_link(citrus)
-    st.page_link(coconut)
-
+    st.page_link(avocado)
+    
 # ===================== ROUTER =======================
-pg = st.navigation([home, trend_all, compare_trend, coffee, avocado, durian, cocoa, cashew, citrus, coconut])
+pg = st.navigation([home, trend_all, compare_trend, coconut, coffee, durian, cocoa, cashew, citrus, avocado])
 
 pg.run()

@@ -32,7 +32,6 @@ def render_lsa_page(
     _defaults = {
         _p + "method":        "Weighted Average",
         _p + "desa":          "Semua Desa",
-        _p + "class":         "Semua Kelas",
         _p + "clicked_point": None,
         _p + "click_stats":   None,
     }
@@ -85,19 +84,6 @@ def render_lsa_page(
                 st.session_state[_p + "clicked_point"] = None
                 st.session_state[_p + "click_stats"]   = None
  
-        # FILTER SUITABILITY CLASS
-        with fc3:
-            class_keys = list(CLASS_OPTIONS.keys())
-            sel_class = st.selectbox(
-                "KELAS KESESUAIAN",
-                class_keys,
-                index=class_keys.index(st.session_state[_p + "class"])
-                      if st.session_state[_p + "class"] in class_keys else 0,
-                key="w_" + commodity_id + "_class",
-            )
-            if sel_class != st.session_state[_p + "class"]:
-                st.session_state[_p + "class"] = sel_class
- 
     st.markdown("<div style='margin-bottom:10px'></div>", unsafe_allow_html=True)
  
     # CHECK IF METHOD LIMITING FACTOR
@@ -110,30 +96,12 @@ def render_lsa_page(
     veget_mask = ee.Image(vegetation).neq(1).And(ee.Image(vegetation).neq(2))
     image_raw  = ee.Image(asset_id).updateMask(veget_mask)
  
-    # ===================== FILTER SUITABILITY CLASS =======================
-    sel_class_val = CLASS_OPTIONS[st.session_state[_p + "class"]]
- 
-    # IF NOT SELECTED
-    if sel_class_val == 0:
-        # DISPLAY ALL CLASS
-        display_image = image_raw
-        map_vis = CLASS_VIS
-    else:
-        # UPDATE IMAGE BY SELECTED SUITABILITY CLASS
-        display_image = image_raw.updateMask(image_raw.eq(sel_class_val))
-        map_vis = {
-            "min":     sel_class_val,
-            "max":     sel_class_val,
-            "palette": SINGLE_CLASS_PALETTE[sel_class_val],
-            "opacity": 0.75,
-        }
- 
     # ===================== FILTER DESA =======================
  
     # IF NOT SELECTED
     if st.session_state[_p + "desa"] == "Semua Desa":
         # DISPLAY ALL DESA
-        filtered_image  = display_image
+        filtered_image  = image_raw
         region_geometry = desaAgats.geometry()
         map_center_obj  = desaAgats
         zoom_level      = 11
@@ -141,7 +109,7 @@ def render_lsa_page(
     else:
         # UPDATE IMAGE BY SELECTED DESA
         desa_fc        = desaAgats.filter(ee.Filter.eq("NAMOBJ", st.session_state[_p + "desa"]))
-        filtered_image = display_image.clip(desa_fc).updateMask(
+        filtered_image = image_raw.clip(desa_fc).updateMask(
             ee.Image.constant(1).clip(desa_fc)
         )
         region_geometry = desa_fc.geometry()
@@ -158,11 +126,6 @@ def render_lsa_page(
             region_key=st.session_state[_p + "desa"],
             method_key=st.session_state[_p + "method"],
         )
- 
-    # IF USER SELECT CLASS
-    if sel_class_val != 0:
-        # FILTER DF TO ONLY SELECTED CLASS
-        df_area = df_area[df_area["Kelas"] == VAL_TO_LABEL[sel_class_val]]
  
     # TOTAL AREA BY SUITABILITY CLASS
     total_area = round(df_area["Area (ha)"].sum(), 2)
@@ -190,20 +153,26 @@ def render_lsa_page(
             zoom_control=True,
         )
         Map.options["doubleClickZoom"] = False
- 
-        # BASEMAP
-        try:
-            Map.add_basemap(DEFAULT_BASEMAP)
-        except Exception:
-            Map.add_basemap("OpenStreetMap")
- 
+
         # LSA LAYER
-        Map.addLayer(filtered_image, map_vis, f"LSA - {st.session_state[_p + 'class']}")
- 
+        for value, (name, color) in LSA_LAYERS.items():
+
+            layer = filtered_image.updateMask(filtered_image.eq(value))
+
+            Map.addLayer(
+                layer,
+                {
+                    "min": value,
+                    "max": value,
+                    "palette": [color],
+                },
+                name,
+            )
+
         # BATAS DESA
         if st.session_state[_p + "desa"] == "Semua Desa":
             Map.addLayer(
-                desaAgats.style(color="00e676", fillColor="00000000", width=1),
+                desaAgats.style(color="ffffff", fillColor="00000000", width=1),
                 {}, "Batas Desa",
             )
         else:
@@ -215,11 +184,11 @@ def render_lsa_page(
                 desa_fc.style(color="ffeb3b", fillColor="ffeb3b1a", width=2.5),
                 {}, f"Desa: {st.session_state[_p + 'desa']}",
             )
- 
+        
         Map.centerObject(map_center_obj, zoom_level)
  
         # LEGEND
-        Map.add_legend(title="Kesesuaian Lahan (FAO 1976)", legend_dict=LEGEND_DICT)
+        Map.add_legend(title="Kelas Kesesuaian Lahan", legend_dict=LEGEND_DICT)
  
         # ===================== SET CIRCLE MARKER ON MAP =======================
         _cp = st.session_state.get(_p + "clicked_point")
@@ -235,9 +204,11 @@ def render_lsa_page(
         map_key = (
             f"{commodity_id}_"
             f"{st.session_state[_p + 'method']}_"
-            f"{st.session_state[_p + 'desa']}_"
-            f"{st.session_state[_p + 'class']}"
+            f"{st.session_state[_p + 'desa']}"
         )
+
+        # ADD LAYER CONTROL
+        folium.LayerControl(collapsed=False, position="topright").add_to(Map)
  
         map_data = st_folium(
             Map, height=MAP_HEIGHT, width=None, returned_objects=["last_clicked"], key=map_key,
@@ -283,7 +254,10 @@ def render_lsa_page(
  
         # ===================== TOTAL AREA =======================
         with stat_container:
-            _section("Statistik Luas")
+            if st.session_state[_p + "desa"] == "Semua Desa":
+                _section("Statistik Semua Desa")
+            else:
+                _section(f"Statistik Luas Desa {st.session_state[_p + 'desa']}")
             st.metric("Total Luas", f"{total_area:,.2f} ha")
  
             m1, m2 = st.columns(2)
@@ -337,14 +311,14 @@ def render_lsa_page(
                 fig_pie.update_layout(
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
-                    font=dict(color="#7d8590", size=11, family="Segoe UI"),
+                    font=dict(color="#7d8590", size=15, family="Segoe UI"),
                     margin=dict(l=0, r=0, t=10, b=0),
                     showlegend=True,
-                    height=220,
+                    height=300,
                     legend=dict(
                         orientation="h", yanchor="bottom", y=-0.28,
                         xanchor="center", x=0.5,
-                        font=dict(size=10), bgcolor="rgba(0,0,0,0)",
+                        font=dict(size=15), bgcolor="rgba(0,0,0,0)",
                     ),
                 )
                 st.plotly_chart(fig_pie, use_container_width=True, config={"displayModeBar": False})
@@ -364,10 +338,10 @@ def render_lsa_page(
                 fig_bar.update_layout(
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
-                    font=dict(color="#7d8590", size=11, family="Segoe UI"),
+                    font=dict(color="#7d8590", size=15, family="Segoe UI"),
                     margin=dict(l=0, r=0, t=10, b=0),
                     showlegend=False,
-                    height=190,
+                    height=250,
                     yaxis=dict(showgrid=True, gridcolor="#21262d", title="Luas (ha)"),
                     xaxis=dict(title=""),
                 )
@@ -377,11 +351,8 @@ def render_lsa_page(
  
             # ===================== CLASS DESCRIPTION =======================
             _section("Deskripsi Kelas")
- 
-            active_label = VAL_TO_LABEL.get(sel_class_val)
+
             for cls_key, info in CLASS_DESC.items():
-                if active_label and cls_key != active_label:
-                    continue
                 color = CLASS_COLOR[cls_key]
                 st.markdown(f"""
                 <div style="border-left:3px solid {color};padding:7px 10px;margin-bottom:7px;

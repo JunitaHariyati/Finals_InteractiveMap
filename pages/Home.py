@@ -37,19 +37,33 @@ with col_map:
     )
     Map.options["doubleClickZoom"] = False
 
-    # BASEMAP
-    Map.add_basemap(DEFAULT_BASEMAP)
-
     # LAND COVER LAYER
-    Map.addLayer(lc_image, LC_VIS, "Tutupan Lahan 2025")
-    Map.add_legend(title="Tutupan Lahan (Sentinel-2 2025)", legend_dict=LC_LEGEND)
+    for value, (name, color) in LC_LAYERS.items():
+
+        layer = lc_image.updateMask(lc_image.eq(value))
+
+        Map.addLayer(
+            layer,
+            {
+                "min": value,
+                "max": value,
+                "palette": [color],
+            },
+            name  
+        )
+    Map.add_legend(
+        title="Tutupan Lahan (Sentinel-2 2025)",
+        legend_dict=LC_LEGEND)
     Map.centerObject(desaAgats, 11)
 
     # BATAS DESA
     Map.addLayer(
-        desaAgats.style(color="00e676", fillColor="00000000", width=1),
+        desaAgats.style(color="ffffff", fillColor="00000000", width=1),
         {}, "Batas Desa",
     )
+
+    # ADD LAYER CONTROL
+    folium.LayerControl(collapsed=False, position="topright").add_to(Map)
     
     # ADD MAP TO PAGE
     st_folium(Map, height=MAP_HEIGHT, width=None)
@@ -60,7 +74,7 @@ with col_stat:
     with stat_cont:
         def _sec(label):
             st.markdown(f"""
-            <div style="font-size:1rem;font-weight:700;text-transform:uppercase;
+            <div style="font-size:1.5rem;font-weight:700;text-transform:uppercase;
                         letter-spacing:1px;color:#1a2332;margin:10px 0 6px;
                         padding-bottom:4px;border-bottom:1px solid #e2e8f0;">
                 {label}
@@ -71,9 +85,9 @@ with col_stat:
         st.markdown(f"""
         <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;
                     padding:12px 14px;margin-bottom:8px;">
-            <div style="font-size:1rem;color:#64748b;margin-bottom:2px;">Wilayah</div>
-            <div style="font-size:1.3rem;font-weight:700;color:#1a2332;">Distrik Agats</div>
-            <div style="font-size:1rem;color:#94a3b8;margin-top:3px;">
+            <div style="font-size:1.3rem;color:#64748b;margin-bottom:2px;">Wilayah</div>
+            <div style="font-size:1.7rem;font-weight:700;color:#1a2332;">Distrik Agats</div>
+            <div style="font-size:1.3rem;color:#94a3b8;margin-top:3px;">
                 Total luas (Tahun 2025)
             </div>
             <div style="font-size:1.7rem;font-weight:800;color:#15803d;margin-top:1px;">
@@ -95,9 +109,9 @@ with col_stat:
                     <div style="display:flex;align-items:center;gap:7px;">
                         <div style="width:10px;height:10px;border-radius:2px;
                                     background:{color};flex-shrink:0;"></div>
-                        <span style="font-size: 1rem;font-weight:600;color:#1a2332;">{row['Kelas']}</span>
+                        <span style="font-size: 1.3rem;font-weight:600;color:#1a2332;">{row['Kelas']}</span>
                     </div>
-                    <span style="font-size:1rem;color:#64748b;font-weight:600;">
+                    <span style="font-size:1.3rem;color:#64748b;font-weight:600;">
                         {pct:.1f}%
                     </span>
                 </div>
@@ -105,7 +119,7 @@ with col_stat:
                     <div style="background:{color};height:4px;border-radius:3px;
                                 width:{bar_w}%;"></div>
                 </div>
-                <div style="font-size:1rem;color:#94a3b8;margin-top:3px;text-align:right;">
+                <div style="font-size:1.3rem;color:#94a3b8;margin-top:3px;text-align:right;">
                     {row['Area (ha)']:,.1f} ha
                 </div>
             </div>""", unsafe_allow_html=True)
@@ -118,7 +132,7 @@ with col_stat:
                 color="Kelas", color_discrete_map=LC_COLOR, hole=0.4,
             )
             fig_pie.update_traces(
-                textposition="inside", textinfo="percent", textfont_size=10,
+                textposition="inside", textinfo="percent", textfont_size=15,
             )
             fig_pie.update_layout(
                 paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
@@ -140,7 +154,7 @@ with col_stat:
             <br>
             <strong style="color:#1a2332;">Vegetasi Tergenang</strong> : Vegetasi yang bercampur dengan genangan air.
             <br>
-            <strong style="color:#1a2332;">Tanaman</strong> : Area budidaya tanaman pertanian dan lahan tanam yang dikelola manusia.
+            <strong style="color:#1a2332;">Pertanian</strong> : Area budidaya tanaman pertanian dan lahan tanam yang dikelola manusia.
             <br>
             <strong style="color:#1a2332;">Lahan Terbuka</strong> : Area tanah atau batuan terbuka dengan sedikit atau tanpa vegetasi.
             <br>
