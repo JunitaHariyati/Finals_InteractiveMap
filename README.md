@@ -1,5 +1,7 @@
 # Web Perubahan Tutupan Lahan & Analisis Kesesuaian Lahan Distrik Agats, Kabupaten Asmat, Papua Selatan
 
+Tugas Akhir Jurusan Informatika Peminatan Data Science
+
 ## Spefikasi Sistem
 - Python: Bahasa Pemrograman Utama
 - Google Earth Engine: Sumber Data & Map Interaktif
